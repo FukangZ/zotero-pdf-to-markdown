@@ -7,8 +7,17 @@
 declare namespace _ZoteroTypes {
   interface Prefs {
     PluginPrefsMap: {
-      "enable": boolean;
-      "input": string;
+      "zhiyiApiUrl": string;
+      "zhiyiApiKey": string;
+      "zhiyiTableMode": string;
+      "zhiyiFormulaFormat": string;
+      "zhiyiEnableCrossPageMerge": boolean;
+      "picgoUploadUrl": string;
+      "picgoSecret": string;
+      "picgoUploadIntervalMs": number;
+      "skipUrlPrefixes": string;
+      "markdownFilenameTemplate": string;
+      "existingMarkdownStrategy": string;
     };
   }
 }

@@ -1,5 +1,13 @@
-pref-title = 插件模板设置示例
-pref-enable =
-    .label = 开启
-pref-input = 输入
+pref-title = Zotero PDF 转 Markdown
+pref-zhiyi-api-url = 知意 API URL
+pref-zhiyi-api-key = 知意 API Key
+pref-zhiyi-table-mode = 知意 table_mode
+pref-zhiyi-formula-format = 知意 formula_format
+pref-zhiyi-enable-cross-page-merge =
+    .label = 启用跨页合并
+pref-picgo-upload-url = PicGo Server URL
+pref-picgo-secret = PicGo Secret
+pref-picgo-upload-interval-ms = PicGo 上传间隔（毫秒）
+pref-skip-url-prefixes = 跳过上传的 URL 前缀
+pref-markdown-filename-template = Markdown 文件名模板
 pref-help = { $name } Build { $version } { $time }

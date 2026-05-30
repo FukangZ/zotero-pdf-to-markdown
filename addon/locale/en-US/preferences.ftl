@@ -1,5 +1,13 @@
-pref-title = Addon Template Example
-pref-enable =
-    .label = Enable
-pref-input = Input
+pref-title = Zotero PDF to Markdown
+pref-zhiyi-api-url = Zhiyi API URL
+pref-zhiyi-api-key = Zhiyi API Key
+pref-zhiyi-table-mode = Zhiyi table_mode
+pref-zhiyi-formula-format = Zhiyi formula_format
+pref-zhiyi-enable-cross-page-merge =
+    .label = Enable cross-page merge
+pref-picgo-upload-url = PicGo Server URL
+pref-picgo-secret = PicGo Secret
+pref-picgo-upload-interval-ms = PicGo upload interval (ms)
+pref-skip-url-prefixes = URL prefixes to skip
+pref-markdown-filename-template = Markdown filename template
 pref-help = { $name } Build { $version } { $time }

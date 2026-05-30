@@ -1,2 +1,11 @@
-pref("enable", true);
-pref("input", "This is input");
+pref("extensions.zotero.zoteropdftomarkdown.zhiyiApiUrl", "https://www.zhiyipdf.com");
+pref("extensions.zotero.zoteropdftomarkdown.zhiyiApiKey", "");
+pref("extensions.zotero.zoteropdftomarkdown.zhiyiTableMode", "markdown");
+pref("extensions.zotero.zoteropdftomarkdown.zhiyiFormulaFormat", "dollar");
+pref("extensions.zotero.zoteropdftomarkdown.zhiyiEnableCrossPageMerge", true);
+pref("extensions.zotero.zoteropdftomarkdown.picgoUploadUrl", "http://127.0.0.1:36677/upload");
+pref("extensions.zotero.zoteropdftomarkdown.picgoSecret", "");
+pref("extensions.zotero.zoteropdftomarkdown.picgoUploadIntervalMs", 250);
+pref("extensions.zotero.zoteropdftomarkdown.skipUrlPrefixes", "");
+pref("extensions.zotero.zoteropdftomarkdown.markdownFilenameTemplate", "{firstAuthor}-{year}-{title}.md");
+pref("extensions.zotero.zoteropdftomarkdown.existingMarkdownStrategy", "skip");

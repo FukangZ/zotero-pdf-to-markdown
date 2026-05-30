@@ -1,24 +1,24 @@
 {
-  "name": "zotero-plugin-template",
+  "name": "zotero-pdf-to-markdown",
   "type": "module",
-  "version": "3.1.0",
-  "description": "Zotero Plugin Template",
+  "version": "0.1.0",
+  "description": "Generate Markdown attachments from Zotero PDF attachments",
   "config": {
-    "addonName": "Zotero Plugin Template",
-    "addonID": "addontemplate@euclpts.com",
-    "addonRef": "addontemplate",
-    "addonInstance": "AddonTemplate",
-    "prefsPrefix": "extensions.zotero.addontemplate"
+    "addonName": "Zotero PDF to Markdown",
+    "addonID": "zotero-pdf-to-markdown@kang.local",
+    "addonRef": "zoteropdftomarkdown",
+    "addonInstance": "ZoteroPdfToMarkdown",
+    "prefsPrefix": "extensions.zotero.zoteropdftomarkdown"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/windingwind/zotero-plugin-template.git"
+    "url": "git+https://github.com/kang/zotero-pdf-to-markdown.git"
   },
-  "author": "windingwind",
+  "author": "Kang",
   "bugs": {
-    "url": "https://github.com/windingwind/zotero-plugin-template/issues"
+    "url": "https://github.com/kang/zotero-pdf-to-markdown/issues"
   },
-  "homepage": "https://github.com/windingwind/zotero-plugin-template#readme",
+  "homepage": "https://github.com/kang/zotero-pdf-to-markdown#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",
@@ -41,6 +41,7 @@
     "eslint": "^9.39.2",
     "mocha": "^11.7.5",
     "prettier": "^3.7.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "zotero-plugin-scaffold": "^0.8.2",
     "zotero-types": "^4.1.0-beta.4"
