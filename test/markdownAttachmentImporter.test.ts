@@ -43,7 +43,7 @@ describe("markdownAttachmentImporter", function () {
       Attachments: {
         importFromFile: async (params: { file: string; title: string }) => {
           importedFilePath = params.file;
-          assert.equal(params.title, "Paper.md");
+          assert.equal(params.title, "MD");
           return importedAttachment;
         },
       },

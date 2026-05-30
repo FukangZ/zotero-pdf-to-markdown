@@ -56,7 +56,8 @@ describe("batchRunner", function () {
       addTag: () => true,
       saveTx: async () => undefined,
     };
-    const uploadedUrls: string[] = [];
+    const uploadedLists: string[][] = [];
+    const downloadedImagePaths: string[] = [];
     let importedMarkdown = "";
 
     (globalThis as any).Zotero = {
@@ -66,7 +67,7 @@ describe("batchRunner", function () {
       },
       Attachments: {
         importFromFile: async (params: { title: string }) => {
-          assert.equal(params.title, "Paper.md");
+          assert.equal(params.title, "MD");
           return importedAttachment;
         },
       },
@@ -79,6 +80,9 @@ describe("batchRunner", function () {
     };
     (globalThis as any).IOUtils = {
       makeDirectory: async () => undefined,
+      write: async (path: string) => {
+        downloadedImagePaths.push(path);
+      },
       writeUTF8: async (_path: string, markdown: string) => {
         importedMarkdown = markdown;
       },
@@ -101,9 +105,13 @@ describe("batchRunner", function () {
         return textResponse("![fig](https://tmp.example.com/a.png)");
       }
 
+      if (url === "https://tmp.example.com/a.png") {
+        return binaryResponse("image/png");
+      }
+
       if (url === "http://127.0.0.1:36677/upload") {
         const body = JSON.parse(String(init?.body));
-        uploadedUrls.push(body.list[0]);
+        uploadedLists.push(body.list);
         return jsonResponse({
           success: true,
           result: ["https://cdn.example.com/a.png"],
@@ -124,7 +132,14 @@ describe("batchRunner", function () {
         attachmentID: 3,
       },
     ]);
-    assert.deepEqual(uploadedUrls, ["https://tmp.example.com/a.png"]);
+    assert.deepEqual(downloadedImagePaths, [
+      "C:\\temp\\zotero-pdf-to-markdown-images-ITEM1\\Paper-fig-001.png",
+    ]);
+    assert.deepEqual(uploadedLists, [
+      [
+        "C:\\temp\\zotero-pdf-to-markdown-images-ITEM1\\Paper-fig-001.png",
+      ],
+    ]);
     assert.equal(importedMarkdown, "![fig](https://cdn.example.com/a.png)");
   });
 });
@@ -190,5 +205,17 @@ function textResponse(body: string): Response {
       get: () => "text/markdown",
     },
     text: async () => body,
+  } as unknown as Response;
+}
+
+function binaryResponse(contentType: string): Response {
+  return {
+    ok: true,
+    status: 200,
+    headers: {
+      get: (name: string) =>
+        name.toLowerCase() === "content-type" ? contentType : null,
+    },
+    arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
   } as unknown as Response;
 }

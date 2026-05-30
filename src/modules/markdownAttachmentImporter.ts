@@ -18,7 +18,7 @@ export async function importMarkdownAttachment(params: {
     const attachment = await Zotero.Attachments.importFromFile({
       file: filePath,
       parentItemID: params.parentItem.id,
-      title: params.filename,
+      title: "MD",
       contentType: "text/markdown",
       charset: "utf-8",
     });

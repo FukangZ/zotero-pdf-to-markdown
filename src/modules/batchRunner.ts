@@ -1,4 +1,5 @@
 import { renderFilenameTemplate } from "./filenameTemplate";
+import { downloadImagesForUpload } from "./imageFileDownloader";
 import {
   extractImageReferences,
   getUniqueUploadUrls,
@@ -47,15 +48,15 @@ export async function runBatch(
       const refs = extractImageReferences(markdown);
       const skipPrefixes = parseSkipUrlPrefixes(prefs.skipUrlPrefixes);
       const uploadUrls = getUniqueUploadUrls(refs, skipPrefixes);
-      const replacements = await uploadImages(uploadUrls, prefs);
+      const filename = renderFilenameTemplate(
+        prefs.markdownFilenameTemplate,
+        item,
+      );
+      const replacements = await uploadImages(uploadUrls, prefs, item, filename);
       const rewrittenMarkdown = rewriteImageReferences(
         markdown,
         refs,
         replacements,
-      );
-      const filename = renderFilenameTemplate(
-        prefs.markdownFilenameTemplate,
-        item,
       );
       const attachment = await importMarkdownAttachment({
         parentItem: item,
@@ -124,22 +125,45 @@ function parseSkipUrlPrefixes(skipUrlPrefixes: string): string[] {
 async function uploadImages(
   uploadUrls: string[],
   prefs: PluginPrefs,
+  item: Zotero.Item,
+  markdownFilename: string,
 ): Promise<Map<string, string>> {
+  if (uploadUrls.length === 0) {
+    return new Map();
+  }
+
   const client = new PicGoServerClient({
     uploadUrl: prefs.picgoUploadUrl,
     secret: prefs.picgoSecret,
   });
   const replacements = new Map<string, string>();
+  const tempDir = PathUtils.join(
+    PathUtils.tempDir,
+    `zotero-pdf-to-markdown-images-${item.key}`,
+  );
 
-  for (const url of uploadUrls) {
-    replacements.set(url, await client.uploadOne(url));
+  try {
+    const downloadedImages = await downloadImagesForUpload({
+      urls: uploadUrls,
+      directory: tempDir,
+      markdownFilename,
+    });
+    const uploadedUrls = await client.uploadMany(
+      downloadedImages.map((image) => image.filePath),
+    );
+
+    for (const [index, image] of downloadedImages.entries()) {
+      replacements.set(image.sourceUrl, uploadedUrls[index]);
+    }
 
     if (prefs.picgoUploadIntervalMs > 0) {
       await delay(prefs.picgoUploadIntervalMs);
     }
-  }
 
-  return replacements;
+    return replacements;
+  } finally {
+    await IOUtils.remove(tempDir, { ignoreAbsent: true, recursive: true });
+  }
 }
 
 function delay(ms: number): Promise<void> {
