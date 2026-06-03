@@ -45,23 +45,20 @@ export async function runBatch(
         pdf.filePath,
         createConversionContext(item, title, pdf.attachment),
       );
-      const refs = extractImageReferences(markdown);
-      const skipPrefixes = parseSkipUrlPrefixes(prefs.skipUrlPrefixes);
-      const uploadUrls = getUniqueUploadUrls(refs, skipPrefixes);
       const filename = renderFilenameTemplate(
         prefs.markdownFilenameTemplate,
         item,
       );
-      const replacements = await uploadImages(uploadUrls, prefs, item, filename);
-      const rewrittenMarkdown = rewriteImageReferences(
+      const importedMarkdown = await prepareMarkdownForImport(
         markdown,
-        refs,
-        replacements,
+        prefs,
+        item,
+        filename,
       );
       const attachment = await importMarkdownAttachment({
         parentItem: item,
         filename,
-        markdown: rewrittenMarkdown,
+        markdown: importedMarkdown,
       });
 
       results.push({
@@ -120,6 +117,24 @@ function parseSkipUrlPrefixes(skipUrlPrefixes: string): string[] {
     .split(/\r?\n/)
     .map((prefix) => prefix.trim())
     .filter((prefix) => prefix.length > 0);
+}
+
+async function prepareMarkdownForImport(
+  markdown: string,
+  prefs: PluginPrefs,
+  item: Zotero.Item,
+  filename: string,
+): Promise<string> {
+  if (!prefs.enablePicgoUpload) {
+    return markdown;
+  }
+
+  const refs = extractImageReferences(markdown);
+  const skipPrefixes = parseSkipUrlPrefixes(prefs.skipUrlPrefixes);
+  const uploadUrls = getUniqueUploadUrls(refs, skipPrefixes);
+  const replacements = await uploadImages(uploadUrls, prefs, item, filename);
+
+  return rewriteImageReferences(markdown, refs, replacements);
 }
 
 async function uploadImages(

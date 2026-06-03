@@ -2,7 +2,7 @@
 
 ## 1. 项目定位
 
-`zotero-pdf-to-markdown` 是一个 Zotero 9 桌面端插件，用于从 Zotero 条目的 PDF 附件生成 Markdown 附件，并将 Markdown 中的临时图片链接转存到用户自己的图床。
+`zotero-pdf-to-markdown` 是一个 Zotero 9 桌面端插件，用于从 Zotero 条目的 PDF 附件生成 Markdown 附件，并可将 Markdown 中的临时图片链接转存到用户自己的图床。
 
 核心目标是把 Zotero 中已有的论文 PDF 转换为可长期保存、可同步、可二次编辑的 Markdown 附件。插件不通过外部 Zotero Web API 写库，也不直接修改 Zotero SQLite 或 `storage` 目录，而是在 Zotero Desktop 内部通过 Zotero JavaScript API 完成附件读取和导入。
 
@@ -24,9 +24,7 @@ Zotero selected regular items
   -> read local PDF path
   -> Zhiyi PDF parse API
   -> Markdown with temporary image URLs
-  -> extract Markdown / HTML image URLs
-  -> PicGo Server /upload
-  -> replace temporary URLs with hosted URLs
+  -> optional PicGo upload and URL replacement
   -> write temporary .md file
   -> Zotero.Attachments.importFromFile()
   -> tag generated attachment with zotero-pdf-to-markdown
@@ -40,7 +38,7 @@ Zotero selected regular items
 - 已存在插件生成 Markdown 附件的条目默认跳过。
 - 判重只看附件 tag `zotero-pdf-to-markdown`，不会因为用户手动添加普通 `.md` 附件而跳过。
 - Markdown 无图片时直接导入 Zotero。
-- Markdown 有图片时先完成 PicGo 上传和 URL 替换，再导入 Zotero。
+- Markdown 有图片且启用 PicGo 上传时，先完成 PicGo 上传和 URL 替换，再导入 Zotero。
 
 ## 3. 技术架构
 
@@ -116,7 +114,7 @@ Configuration
 1. 检查是否已有带 `zotero-pdf-to-markdown` tag 的附件。
 2. 解析 PDF 附件和本地文件路径。
 3. 调用知意 API 将 PDF 转 Markdown。
-4. 提取 Markdown 图片引用。
+4. 如果启用 PicGo 上传，提取 Markdown 图片引用。
 5. 根据 `skipUrlPrefixes` 过滤已托管图片。
 6. 逐个调用 PicGo Server 上传图片。
 7. 从后向前替换 Markdown 中的 URL。
@@ -184,7 +182,7 @@ enable_cross_page_merge=<pref>
 
 ### 4.2 PicGo Server
 
-`src/modules/picgoServerClient.ts` 封装 PicGo Server 上传。默认目标接口：
+启用 `enablePicgoUpload` 后，`src/modules/picgoServerClient.ts` 封装 PicGo Server 上传。默认目标接口：
 
 ```text
 POST http://127.0.0.1:36677/upload
@@ -242,6 +240,7 @@ MVP 支持两类图片引用：
 | `zhiyiTableMode` | `markdown` | 知意表格输出模式 |
 | `zhiyiFormulaFormat` | `dollar` | 公式输出格式 |
 | `zhiyiEnableCrossPageMerge` | `true` | 是否启用跨页合并 |
+| `enablePicgoUpload` | `true` | 是否通过 PicGo 上传并替换图片 URL |
 | `picgoUploadUrl` | `http://127.0.0.1:36677/upload` | PicGo Server 上传接口 |
 | `picgoSecret` | 空 | PicGo Server secret，可选 |
 | `picgoUploadIntervalMs` | `250` | 单图上传后的等待时间 |

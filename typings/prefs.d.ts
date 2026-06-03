@@ -12,6 +12,7 @@ declare namespace _ZoteroTypes {
       "zhiyiTableMode": string;
       "zhiyiFormulaFormat": string;
       "zhiyiEnableCrossPageMerge": boolean;
+      "enablePicgoUpload": boolean;
       "picgoUploadUrl": string;
       "picgoSecret": string;
       "picgoUploadIntervalMs": number;

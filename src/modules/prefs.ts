@@ -16,6 +16,7 @@ export function readPluginPrefs(): PluginPrefs {
       | "dollar"
       | "bracket",
     zhiyiEnableCrossPageMerge: getPref<boolean>("zhiyiEnableCrossPageMerge"),
+    enablePicgoUpload: getPref<boolean>("enablePicgoUpload"),
     picgoUploadUrl: getPref<string>("picgoUploadUrl"),
     picgoSecret: getPref<string>("picgoSecret"),
     picgoUploadIntervalMs: getPref<number>("picgoUploadIntervalMs"),

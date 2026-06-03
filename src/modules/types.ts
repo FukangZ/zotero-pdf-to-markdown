@@ -4,6 +4,7 @@ export interface PluginPrefs {
   zhiyiTableMode: "markdown" | "image";
   zhiyiFormulaFormat: "dollar" | "bracket";
   zhiyiEnableCrossPageMerge: boolean;
+  enablePicgoUpload: boolean;
   picgoUploadUrl: string;
   picgoSecret: string;
   picgoUploadIntervalMs: number;

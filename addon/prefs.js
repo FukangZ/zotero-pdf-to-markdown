@@ -3,6 +3,7 @@ pref("extensions.zotero.zoteropdftomarkdown.zhiyiApiKey", "");
 pref("extensions.zotero.zoteropdftomarkdown.zhiyiTableMode", "markdown");
 pref("extensions.zotero.zoteropdftomarkdown.zhiyiFormulaFormat", "dollar");
 pref("extensions.zotero.zoteropdftomarkdown.zhiyiEnableCrossPageMerge", true);
+pref("extensions.zotero.zoteropdftomarkdown.enablePicgoUpload", true);
 pref("extensions.zotero.zoteropdftomarkdown.picgoUploadUrl", "http://127.0.0.1:36677/upload");
 pref("extensions.zotero.zoteropdftomarkdown.picgoSecret", "");
 pref("extensions.zotero.zoteropdftomarkdown.picgoUploadIntervalMs", 250);

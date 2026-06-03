@@ -13,6 +13,7 @@ export type FluentMessageId =
   | 'menuitem-label'
   | 'menuitem-submenulabel'
   | 'menupopup-label'
+  | 'pref-enable-picgo-upload'
   | 'pref-help'
   | 'pref-markdown-filename-template'
   | 'pref-picgo-secret'

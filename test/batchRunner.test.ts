@@ -142,21 +142,106 @@ describe("batchRunner", function () {
     ]);
     assert.equal(importedMarkdown, "![fig](https://cdn.example.com/a.png)");
   });
+
+  it("imports markdown with original image URLs when PicGo upload is disabled", async function () {
+    const item = createItem({ id: 1, key: "ITEM1", title: "Paper" });
+    const pdfAttachment = createAttachment({
+      id: 2,
+      key: "PDF1",
+      contentType: "application/pdf",
+      filename: "paper.pdf",
+      filePath: "C:\\papers\\paper.pdf",
+    });
+    const importedAttachment = {
+      id: 3,
+      addTag: () => true,
+      saveTx: async () => undefined,
+    };
+    const downloadedImagePaths: string[] = [];
+    let importedMarkdown = "";
+
+    (globalThis as any).Zotero = {
+      Items: {
+        get: () => pdfAttachment,
+        getAsync: async () => [pdfAttachment],
+      },
+      Attachments: {
+        importFromFile: async (params: { title: string }) => {
+          assert.equal(params.title, "MD");
+          return importedAttachment;
+        },
+      },
+    };
+    (globalThis as any).File.createFromFileName = async () => new Blob(["pdf"]);
+    (globalThis as any).PathUtils = {
+      filename: () => "paper.pdf",
+      join: (...parts: string[]) => parts.join("\\"),
+      tempDir: "C:\\temp",
+    };
+    (globalThis as any).IOUtils = {
+      makeDirectory: async () => undefined,
+      write: async (path: string) => {
+        downloadedImagePaths.push(path);
+      },
+      writeUTF8: async (_path: string, markdown: string) => {
+        importedMarkdown = markdown;
+      },
+      remove: async () => undefined,
+    };
+    (globalThis as any).fetch = async (url: string) => {
+      if (url.endsWith("/parse")) {
+        return jsonResponse({ success: true, task_id: "TASK1" });
+      }
+
+      if (url.endsWith("/status/TASK1")) {
+        return jsonResponse({
+          success: true,
+          status: "completed",
+          result: { download_url: "/download/TASK1" },
+        });
+      }
+
+      if (url.endsWith("/download/TASK1")) {
+        return textResponse("![fig](https://tmp.example.com/a.png)");
+      }
+
+      throw new Error(`Unexpected fetch URL: ${url}`);
+    };
+
+    const results = await runBatch(
+      [item as Zotero.Item],
+      createPrefs({ enablePicgoUpload: false }),
+    );
+
+    assert.deepEqual(results, [
+      {
+        status: "success",
+        itemID: 1,
+        itemKey: "ITEM1",
+        title: "Paper",
+        attachmentID: 3,
+      },
+    ]);
+    assert.deepEqual(downloadedImagePaths, []);
+    assert.equal(importedMarkdown, "![fig](https://tmp.example.com/a.png)");
+  });
 });
 
-function createPrefs(): PluginPrefs {
+function createPrefs(options: Partial<PluginPrefs> = {}): PluginPrefs {
   return {
     zhiyiApiUrl: "https://zhiyi.example.com",
     zhiyiApiKey: "test-key",
     zhiyiTableMode: "markdown",
     zhiyiFormulaFormat: "dollar",
     zhiyiEnableCrossPageMerge: true,
+    enablePicgoUpload: true,
     picgoUploadUrl: "http://127.0.0.1:36677/upload",
     picgoSecret: "",
     picgoUploadIntervalMs: 0,
     skipUrlPrefixes: "https://cdn.example.com/",
     markdownFilenameTemplate: "{title}.md",
     existingMarkdownStrategy: "skip",
+    ...options,
   };
 }
 

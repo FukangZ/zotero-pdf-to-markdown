@@ -6,6 +6,7 @@ const preferenceKeys = [
   "zhiyiTableMode",
   "zhiyiFormulaFormat",
   "zhiyiEnableCrossPageMerge",
+  "enablePicgoUpload",
   "picgoUploadUrl",
   "picgoSecret",
   "picgoUploadIntervalMs",
