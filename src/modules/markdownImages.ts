@@ -36,6 +36,13 @@ export function getUniqueUploadUrls(
   references: ImageReference[],
   skipUrlPrefixes: string[],
 ): string[] {
+  return getUniqueImageUrls(references, skipUrlPrefixes);
+}
+
+export function getUniqueImageUrls(
+  references: ImageReference[],
+  skipUrlPrefixes: string[] = [],
+): string[] {
   const urls: string[] = [];
   const seen = new Set<string>();
 

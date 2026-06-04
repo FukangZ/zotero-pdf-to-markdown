@@ -2,14 +2,15 @@
 
 [![zotero target version](https://img.shields.io/badge/Zotero-9-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
 
-从 Zotero PDF 附件生成 Markdown 附件，并可将 Markdown 中的临时图片链接转存到用户自己的图床。
+从 Zotero PDF 附件生成 Markdown 附件，并可将 Markdown 中的临时图片链接转存到图床或保存为本地附件资源。
 
 ## 功能概览
 
 - 从 Zotero 当前选中的 regular item 读取 PDF 附件。
 - 可选择知意 PDF 或 MinerU 将 PDF 转换为 Markdown。
-- 可提取 Markdown 图片链接，并通过本机 PicGo Server 上传到图床。
+- 可提取 Markdown 图片链接，并通过本机 PicGo Server 上传到图床，或下载到 Markdown 附件目录。
 - 启用 PicGo 上传时，将临时图片 URL 替换为 PicGo 返回的永久 URL。
+- 关闭 PicGo 上传时，将临时图片下载到 `assets/` 并替换为相对路径。
 - 将最终 Markdown 文件导入为 Zotero stored attachment。
 - 给插件生成的 Markdown 附件添加 `zotero-pdf-to-markdown` tag。
 - 批量处理多个条目，单个条目失败不影响后续条目。
@@ -34,6 +35,7 @@
 - 判重只检查附件 tag `zotero-pdf-to-markdown`，不会因为用户手动添加普通 `.md` 附件而跳过。
 - Markdown 无图片时直接导入 Zotero。
 - Markdown 有图片且启用 PicGo 上传时，先上传图片并替换 URL，再导入 Zotero。
+- Markdown 有图片且关闭 PicGo 上传时，先下载图片到本地 `assets/` 目录并替换为相对路径，再导入 Zotero。
 - 处理结束后显示成功、跳过、失败摘要。
 
 暂不支持：
@@ -52,13 +54,13 @@ Zotero selected regular items
   -> read local PDF path
   -> selected PDF parser provider
   -> Markdown with temporary image URLs
-  -> optional PicGo upload and URL replacement
-  -> write temporary .md file
+  -> PicGo upload or local assets replacement
+  -> write temporary .md package
   -> Zotero.Attachments.importFromFile()
   -> tag generated attachment with zotero-pdf-to-markdown
 ```
 
-插件运行在 Zotero Desktop 内部，通过 Zotero JavaScript API 读取条目和导入附件。它不使用 `pyzotero` 或 Zotero Web API 写入本地库，也不直接修改 Zotero SQLite 或 `storage` 目录。
+插件运行在 Zotero Desktop 内部，通过 Zotero JavaScript API 读取条目和导入附件。它不使用 `pyzotero` 或 Zotero Web API 写入本地库，也不直接修改 Zotero SQLite。
 
 ## 外部依赖
 
@@ -129,7 +131,7 @@ Content-Type: application/json
 | `markdownFilenameTemplate`  | `{firstAuthor}-{year}-{title}.md` | Markdown 文件名模板                   |
 | `existingMarkdownStrategy`  | `skip`                            | 已有插件生成附件时的处理策略          |
 
-关闭 `enablePicgoUpload` 时，插件会直接导入解析服务返回的原始 Markdown，不访问 PicGo Server。`skipUrlPrefixes` 可用于跳过已经属于个人图床的图片 URL，避免重复上传。
+关闭 `enablePicgoUpload` 时，插件不访问 PicGo Server，而是将 Markdown 中的远程图片下载到 Markdown 附件 storage 目录下的 `assets/` 子目录，并把图片引用改为相对路径。`skipUrlPrefixes` 仅用于 PicGo 上传模式，可跳过已经属于个人图床的图片 URL，避免重复上传。
 
 ## Markdown 图片处理
 
@@ -146,6 +148,7 @@ MVP 只处理 URL 级替换，不重排或格式化 Markdown。
 
 - 只处理 `http:` 和 `https:` URL。
 - 启用 PicGo 上传时，相同图片 URL 去重，只上传一次。
+- 关闭 PicGo 上传时，远程图片会下载为 `assets/fig-001.ext` 形式的本地文件。
 - 替换时从后向前执行，避免索引偏移。
 - 未命中替换表的 URL 保持不变。
 
@@ -223,8 +226,8 @@ npm run test
 
 - 不在日志、文档或提交中输出 `.env`、知意 API Key、PicGo secret 等敏感信息。
 - 不直接修改 Zotero SQLite。
-- 不在导入后直接修改 Zotero `storage` 目录内文件。
-- 启用 PicGo 上传时，Markdown 内容在导入 Zotero 前完成图片 URL 替换。
+- 不在导入后直接修改 Zotero `storage` 目录内的 Markdown 文件。
+- Markdown 内容在导入 Zotero 前完成图片 URL 替换。
 
 ## 参考资料
 

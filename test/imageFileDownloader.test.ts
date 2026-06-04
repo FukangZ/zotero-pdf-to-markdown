@@ -1,7 +1,7 @@
 import { assert } from "chai";
 
 const {
-  downloadImagesForUpload,
+  downloadImageFiles,
   inferImageExtension,
 } = require("../src/modules/imageFileDownloader");
 
@@ -37,7 +37,7 @@ describe("imageFileDownloader", function () {
       } as Response;
     };
 
-    const downloads = await downloadImagesForUpload({
+    const downloads = await downloadImageFiles({
       urls: ["https://tmp.example.com/one", "https://tmp.example.com/two"],
       directory: "C:\\temp\\images",
       markdownFilename: "Paper Title.md",
@@ -65,6 +65,39 @@ describe("imageFileDownloader", function () {
     ]);
   });
 
+  it("can omit the markdown filename prefix for attachment-local images", async function () {
+    const writtenPaths: string[] = [];
+
+    (globalThis as any).PathUtils = {
+      join: (...parts: string[]) => parts.join("\\"),
+    };
+    (globalThis as any).IOUtils = {
+      makeDirectory: async () => undefined,
+      write: async (path: string) => {
+        writtenPaths.push(path);
+      },
+    };
+    (globalThis as any).fetch = async () =>
+      ({
+        ok: true,
+        status: 200,
+        headers: {
+          get: () => "image/png",
+        },
+        arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+      }) as unknown as Response;
+
+    const downloads = await downloadImageFiles({
+      urls: ["https://tmp.example.com/one"],
+      directory: "C:\\temp\\images",
+      markdownFilename: "Paper Title.md",
+      useMarkdownFilenamePrefix: false,
+    });
+
+    assert.equal(downloads[0].filename, "fig-001.png");
+    assert.deepEqual(writtenPaths, ["C:\\temp\\images\\fig-001.png"]);
+  });
+
   it("infers image extensions from content type before URL path", function () {
     assert.equal(
       inferImageExtension("image/webp", "https://tmp.example.com/a.png"),
@@ -74,6 +107,9 @@ describe("imageFileDownloader", function () {
       inferImageExtension(null, "https://tmp.example.com/a.jpeg?x=1"),
       ".jpg",
     );
-    assert.equal(inferImageExtension(null, "https://tmp.example.com/a"), ".png");
+    assert.equal(
+      inferImageExtension(null, "https://tmp.example.com/a"),
+      ".png",
+    );
   });
 });

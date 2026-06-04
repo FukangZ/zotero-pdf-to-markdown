@@ -8,7 +8,7 @@ import {
 describe("markdownImages", function () {
   it("extracts markdown and html image URLs", function () {
     const markdown =
-      "![fig](https://tmp.example.com/a.png)\n<img src=\"https://tmp.example.com/b.jpg\">";
+      '![fig](https://tmp.example.com/a.png)\n<img src="https://tmp.example.com/b.jpg">';
 
     const refs = extractImageReferences(markdown);
 

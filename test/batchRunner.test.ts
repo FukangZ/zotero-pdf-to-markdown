@@ -142,7 +142,7 @@ describe("batchRunner", function () {
     assert.equal(importedMarkdown, "![fig](https://cdn.example.com/a.png)");
   });
 
-  it("imports markdown with original image URLs when PicGo upload is disabled", async function () {
+  it("imports markdown with local image assets when PicGo upload is disabled", async function () {
     const item = createItem({ id: 1, key: "ITEM1", title: "Paper" });
     const pdfAttachment = createAttachment({
       id: 2,
@@ -153,10 +153,14 @@ describe("batchRunner", function () {
     });
     const importedAttachment = {
       id: 3,
+      key: "MD1",
       addTag: () => true,
       saveTx: async () => undefined,
     };
     const downloadedImagePaths: string[] = [];
+    const copiedAssets: Array<{ from: string; to: string }> = [];
+    const removedDirectories: string[] = [];
+    const syncStates: string[] = [];
     let importedMarkdown = "";
 
     (globalThis as any).Zotero = {
@@ -168,6 +172,19 @@ describe("batchRunner", function () {
         importFromFile: async (params: { title: string }) => {
           assert.equal(params.title, "MD");
           return importedAttachment;
+        },
+        getStorageDirectory: () => ({ path: "C:\\zotero\\storage\\MD1" }),
+      },
+      Sync: {
+        Storage: {
+          Local: {
+            updateSyncStates: async (
+              _attachments: Zotero.Item[],
+              state: string,
+            ) => {
+              syncStates.push(state);
+            },
+          },
         },
       },
     };
@@ -185,7 +202,12 @@ describe("batchRunner", function () {
       writeUTF8: async (_path: string, markdown: string) => {
         importedMarkdown = markdown;
       },
-      remove: async () => undefined,
+      copy: async (from: string, to: string) => {
+        copiedAssets.push({ from, to });
+      },
+      remove: async (path: string) => {
+        removedDirectories.push(path);
+      },
     };
     (globalThis as any).fetch = async (url: string) => {
       if (url.endsWith("/parse")) {
@@ -202,6 +224,10 @@ describe("batchRunner", function () {
 
       if (url.endsWith("/download/TASK1")) {
         return textResponse("![fig](https://tmp.example.com/a.png)");
+      }
+
+      if (url === "https://tmp.example.com/a.png") {
+        return binaryResponse("image/png");
       }
 
       throw new Error(`Unexpected fetch URL: ${url}`);
@@ -221,8 +247,21 @@ describe("batchRunner", function () {
         attachmentID: 3,
       },
     ]);
-    assert.deepEqual(downloadedImagePaths, []);
-    assert.equal(importedMarkdown, "![fig](https://tmp.example.com/a.png)");
+    assert.deepEqual(downloadedImagePaths, [
+      "C:\\temp\\zotero-pdf-to-markdown-local-images-ITEM1\\fig-001.png",
+    ]);
+    assert.equal(importedMarkdown, "![fig](assets/fig-001.png)");
+    assert.deepEqual(copiedAssets, [
+      {
+        from: "C:\\temp\\zotero-pdf-to-markdown-local-images-ITEM1\\fig-001.png",
+        to: "C:\\zotero\\storage\\MD1\\assets\\fig-001.png",
+      },
+    ]);
+    assert.deepEqual(syncStates, ["to_upload"]);
+    assert.include(
+      removedDirectories,
+      "C:\\temp\\zotero-pdf-to-markdown-local-images-ITEM1",
+    );
   });
 
   it("converts a PDF through MinerU when selected in preferences", async function () {

@@ -2,6 +2,7 @@ import { sanitizeFilename } from "./filenameTemplate";
 
 export interface DownloadedImageFile {
   sourceUrl: string;
+  filename: string;
   filePath: string;
 }
 
@@ -14,10 +15,11 @@ const IMAGE_EXTENSION_BY_CONTENT_TYPE = new Map([
   ["image/svg+xml", ".svg"],
 ]);
 
-export async function downloadImagesForUpload(params: {
+export async function downloadImageFiles(params: {
   urls: string[];
   directory: string;
   markdownFilename: string;
+  useMarkdownFilenamePrefix?: boolean;
 }): Promise<DownloadedImageFile[]> {
   await IOUtils.makeDirectory(params.directory);
 
@@ -37,6 +39,7 @@ export async function downloadImagesForUpload(params: {
         params.markdownFilename,
         index + 1,
         extension,
+        params.useMarkdownFilenamePrefix ?? true,
       );
       const filePath = PathUtils.join(params.directory, filename);
       const bytes = new Uint8Array(await response.arrayBuffer());
@@ -45,11 +48,14 @@ export async function downloadImagesForUpload(params: {
 
       return {
         sourceUrl: url,
+        filename,
         filePath,
       };
     }),
   );
 }
+
+export const downloadImagesForUpload = downloadImageFiles;
 
 export function inferImageExtension(
   contentType: string | null,
@@ -75,13 +81,18 @@ function createImageFilename(
   markdownFilename: string,
   index: number,
   extension: string,
+  useMarkdownFilenamePrefix: boolean,
 ): string {
   const markdownBaseName = markdownFilename.replace(/\.md$/i, "");
   const paddedIndex = String(index).padStart(3, "0");
-  return sanitizeFilename(
-    `${markdownBaseName}-fig-${paddedIndex}${extension}`,
-    `figure-${paddedIndex}${extension}`,
-  );
+  const filename = useMarkdownFilenamePrefix
+    ? `${markdownBaseName}-fig-${paddedIndex}${extension}`
+    : `fig-${paddedIndex}${extension}`;
+  const fallbackFilename = useMarkdownFilenamePrefix
+    ? `figure-${paddedIndex}${extension}`
+    : `fig-${paddedIndex}${extension}`;
+
+  return sanitizeFilename(filename, fallbackFilename);
 }
 
 function getUrlImageExtension(url: string): string | undefined {

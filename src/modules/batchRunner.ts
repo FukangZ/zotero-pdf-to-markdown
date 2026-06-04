@@ -1,11 +1,18 @@
 import { renderFilenameTemplate } from "./filenameTemplate";
-import { downloadImagesForUpload } from "./imageFileDownloader";
+import {
+  type DownloadedImageFile,
+  downloadImageFiles,
+} from "./imageFileDownloader";
 import {
   extractImageReferences,
+  getUniqueImageUrls,
   getUniqueUploadUrls,
   rewriteImageReferences,
 } from "./markdownImages";
-import { importMarkdownAttachment } from "./markdownAttachmentImporter";
+import {
+  type MarkdownAttachmentAsset,
+  importMarkdownAttachment,
+} from "./markdownAttachmentImporter";
 import { MineruPdfClient } from "./mineruPdfClient";
 import {
   hasMarkdownAttachment,
@@ -19,6 +26,7 @@ const DEFAULT_ZHIYI_POLL_INTERVAL_MS = 3000;
 const DEFAULT_ZHIYI_TIMEOUT_MS = 10 * 60 * 1000;
 const DEFAULT_MINERU_POLL_INTERVAL_MS = 3000;
 const DEFAULT_MINERU_TIMEOUT_MS = 10 * 60 * 1000;
+const LOCAL_IMAGE_ASSETS_DIR = "assets";
 
 interface PdfToMarkdownClient {
   convert(pdfPath: string, context: ConversionContext): Promise<string>;
@@ -56,17 +64,17 @@ export async function runBatch(
         prefs.markdownFilenameTemplate,
         item,
       );
-      const importedMarkdown = await prepareMarkdownForImport(
+      const preparedMarkdown = await prepareMarkdownForImport(
         markdown,
         prefs,
         item,
         filename,
       );
-      const attachment = await importMarkdownAttachment({
-        parentItem: item,
+      const attachment = await importPreparedMarkdown(
+        item,
         filename,
-        markdown: importedMarkdown,
-      });
+        preparedMarkdown,
+      );
 
       results.push({
         status: "success",
@@ -87,6 +95,23 @@ export async function runBatch(
   }
 
   return results;
+}
+
+async function importPreparedMarkdown(
+  parentItem: Zotero.Item,
+  filename: string,
+  preparedMarkdown: PreparedMarkdown,
+): Promise<Zotero.Item> {
+  try {
+    return await importMarkdownAttachment({
+      parentItem,
+      filename,
+      markdown: preparedMarkdown.markdown,
+      assets: preparedMarkdown.assets,
+    });
+  } finally {
+    await cleanupPreparedMarkdown(preparedMarkdown);
+  }
 }
 
 function getItemTitle(item: Zotero.Item): string {
@@ -150,17 +175,60 @@ async function prepareMarkdownForImport(
   prefs: PluginPrefs,
   item: Zotero.Item,
   filename: string,
-): Promise<string> {
+): Promise<PreparedMarkdown> {
+  const refs = extractImageReferences(markdown);
+
   if (!prefs.enablePicgoUpload) {
-    return markdown;
+    return localizeImages(markdown, refs, item, filename);
   }
 
-  const refs = extractImageReferences(markdown);
   const skipPrefixes = parseSkipUrlPrefixes(prefs.skipUrlPrefixes);
   const uploadUrls = getUniqueUploadUrls(refs, skipPrefixes);
   const replacements = await uploadImages(uploadUrls, prefs, item, filename);
 
-  return rewriteImageReferences(markdown, refs, replacements);
+  return {
+    markdown: rewriteImageReferences(markdown, refs, replacements),
+  };
+}
+
+async function localizeImages(
+  markdown: string,
+  refs: ReturnType<typeof extractImageReferences>,
+  item: Zotero.Item,
+  markdownFilename: string,
+): Promise<PreparedMarkdown> {
+  const imageUrls = getUniqueImageUrls(refs);
+
+  if (imageUrls.length === 0) {
+    return { markdown };
+  }
+
+  const tempDir = PathUtils.join(
+    PathUtils.tempDir,
+    `zotero-pdf-to-markdown-local-images-${item.key}`,
+  );
+
+  try {
+    const downloadedImages = await downloadImageFiles({
+      urls: imageUrls,
+      directory: tempDir,
+      markdownFilename,
+      useMarkdownFilenamePrefix: false,
+    });
+    const replacements = createLocalImageReplacements(downloadedImages);
+
+    return {
+      markdown: rewriteImageReferences(markdown, refs, replacements),
+      assets: downloadedImages.map((image) => ({
+        filePath: image.filePath,
+        relativePath: getLocalImageRelativePath(image.filename),
+      })),
+      cleanupDirectories: [tempDir],
+    };
+  } catch (error) {
+    await IOUtils.remove(tempDir, { ignoreAbsent: true, recursive: true });
+    throw error;
+  }
 }
 
 async function uploadImages(
@@ -184,7 +252,7 @@ async function uploadImages(
   );
 
   try {
-    const downloadedImages = await downloadImagesForUpload({
+    const downloadedImages = await downloadImageFiles({
       urls: uploadUrls,
       directory: tempDir,
       markdownFilename,
@@ -209,4 +277,39 @@ async function uploadImages(
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function createLocalImageReplacements(
+  downloadedImages: DownloadedImageFile[],
+): Map<string, string> {
+  return new Map(
+    downloadedImages.map((image) => [
+      image.sourceUrl,
+      getLocalImageRelativePath(image.filename),
+    ]),
+  );
+}
+
+function getLocalImageRelativePath(filename: string): string {
+  return `${LOCAL_IMAGE_ASSETS_DIR}/${filename}`;
+}
+
+interface PreparedMarkdown {
+  markdown: string;
+  assets?: MarkdownAttachmentAsset[];
+  cleanupDirectories?: string[];
+}
+
+async function cleanupPreparedMarkdown(
+  preparedMarkdown: PreparedMarkdown,
+): Promise<void> {
+  if (!preparedMarkdown.cleanupDirectories?.length) {
+    return;
+  }
+
+  await Promise.all(
+    preparedMarkdown.cleanupDirectories.map((directory) =>
+      IOUtils.remove(directory, { ignoreAbsent: true, recursive: true }),
+    ),
+  );
 }

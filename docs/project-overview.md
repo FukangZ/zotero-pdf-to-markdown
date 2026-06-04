@@ -2,9 +2,9 @@
 
 ## 1. 项目定位
 
-`zotero-pdf-to-markdown` 是一个 Zotero 9 桌面端插件，用于从 Zotero 条目的 PDF 附件生成 Markdown 附件，并可将 Markdown 中的临时图片链接转存到用户自己的图床。
+`zotero-pdf-to-markdown` 是一个 Zotero 9 桌面端插件，用于从 Zotero 条目的 PDF 附件生成 Markdown 附件，并可将 Markdown 中的临时图片链接转存到用户自己的图床或保存为本地附件资源。
 
-核心目标是把 Zotero 中已有的论文 PDF 转换为可长期保存、可同步、可二次编辑的 Markdown 附件。插件不通过外部 Zotero Web API 写库，也不直接修改 Zotero SQLite 或 `storage` 目录，而是在 Zotero Desktop 内部通过 Zotero JavaScript API 完成附件读取和导入。
+核心目标是把 Zotero 中已有的论文 PDF 转换为可长期保存、可同步、可二次编辑的 Markdown 附件。插件不通过外部 Zotero Web API 写库，也不直接修改 Zotero SQLite，而是在 Zotero Desktop 内部通过 Zotero JavaScript API 完成附件读取和导入。
 
 目标条目结构：
 
@@ -24,8 +24,8 @@ Zotero selected regular items
   -> read local PDF path
   -> selected PDF parser provider
   -> Markdown with temporary image URLs
-  -> optional PicGo upload and URL replacement
-  -> write temporary .md file
+  -> PicGo upload or local assets replacement
+  -> write temporary .md package
   -> Zotero.Attachments.importFromFile()
   -> tag generated attachment with zotero-pdf-to-markdown
 ```
@@ -39,6 +39,7 @@ Zotero selected regular items
 - 判重只看附件 tag `zotero-pdf-to-markdown`，不会因为用户手动添加普通 `.md` 附件而跳过。
 - Markdown 无图片时直接导入 Zotero。
 - Markdown 有图片且启用 PicGo 上传时，先完成 PicGo 上传和 URL 替换，再导入 Zotero。
+- Markdown 有图片且关闭 PicGo 上传时，先下载图片到本地 `assets/` 目录并替换为相对路径，再导入 Zotero。
 
 ## 3. 技术架构
 
@@ -115,10 +116,10 @@ Configuration
 1. 检查是否已有带 `zotero-pdf-to-markdown` tag 的附件。
 2. 解析 PDF 附件和本地文件路径。
 3. 按 `pdfParserProvider` 调用知意或 MinerU 将 PDF 转 Markdown。
-4. 如果启用 PicGo 上传，提取 Markdown 图片引用。
-5. 根据 `skipUrlPrefixes` 过滤已托管图片。
-6. 逐个调用 PicGo Server 上传图片。
-7. 从后向前替换 Markdown 中的 URL。
+4. 提取 Markdown 图片引用。
+5. 如果启用 PicGo 上传，根据 `skipUrlPrefixes` 过滤已托管图片，并逐个调用 PicGo Server 上传图片。
+6. 如果关闭 PicGo 上传，下载远程图片到本地临时目录，并生成 `assets/` 相对路径。
+7. 从后向前替换 Markdown 中的图片引用。
 8. 渲染 Markdown 文件名。
 9. 写入临时 `.md` 文件并导入 Zotero。
 10. 返回 success / skipped / failed 结果。
@@ -256,8 +257,10 @@ MVP 支持两类图片引用：
 
 - 只提取 `http:` 和 `https:` 图片 URL。
 - 支持 Markdown 图片和 HTML `<img src="...">`。
-- 通过 `skipUrlPrefixes` 跳过已经属于用户图床的 URL。
-- 对重复 URL 去重，只上传一次。
+- 启用 PicGo 上传时，通过 `skipUrlPrefixes` 跳过已经属于用户图床的 URL。
+- 启用 PicGo 上传时，对重复 URL 去重，只上传一次。
+- 关闭 PicGo 上传时，将远程图片下载到 Markdown 附件 storage 目录下的 `assets/` 子目录，并替换为相对路径。
+- 本地图片文件名使用 `fig-001.ext` 形式，扩展名优先从 `Content-Type` 推断。
 - 替换时按引用位置从后向前执行，避免索引偏移。
 - 未出现在 replacements 中的 URL 保持不变。
 
@@ -340,7 +343,7 @@ MVP 支持两类图片引用：
 
 - 不输出 `.env`、知意 API Key、PicGo secret 等敏感信息。
 - 不直接修改 Zotero SQLite。
-- 不在导入后直接改 Zotero `storage` 内文件。
+- 不在导入后直接改 Zotero `storage` 内的 Markdown 文件；本地图片模式仅在导入流程中向该 Markdown 附件目录写入 `assets/` 图片文件。
 - 不通过 `pyzotero` 或 `zotero-mcp` 写入本地 Zotero。
 - Markdown 内容在导入 Zotero 前完成最终 URL 替换。
 
@@ -357,6 +360,7 @@ npm run build
 ```text
 test/batchRunner.test.ts
 test/filenameTemplate.test.ts
+test/imageFileDownloader.test.ts
 test/markdownAttachmentImporter.test.ts
 test/markdownImages.test.ts
 test/mineruPdfClient.test.ts
@@ -364,7 +368,6 @@ test/pdfAttachmentResolver.test.ts
 test/picgoServerClient.test.ts
 test/selectedItems.test.ts
 test/zhiyiPdfClient.test.ts
-test/startup.test.ts
 ```
 
 可按模块运行聚焦测试，例如：
