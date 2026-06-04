@@ -1,9 +1,20 @@
+export type PdfParserProvider = "zhiyi" | "mineru";
+
 export interface PluginPrefs {
+  pdfParserProvider: PdfParserProvider;
   zhiyiApiUrl: string;
   zhiyiApiKey: string;
   zhiyiTableMode: "markdown" | "image";
   zhiyiFormulaFormat: "dollar" | "bracket";
   zhiyiEnableCrossPageMerge: boolean;
+  mineruApiUrl: string;
+  mineruApiToken: string;
+  mineruModelVersion: "pipeline" | "vlm" | "MinerU-HTML";
+  mineruLanguage: string;
+  mineruEnableTable: boolean;
+  mineruIsOcr: boolean;
+  mineruEnableFormula: boolean;
+  mineruPageRanges: string;
   enablePicgoUpload: boolean;
   picgoUploadUrl: string;
   picgoSecret: string;
@@ -57,7 +68,4 @@ export interface ItemRunFailed {
   error: string;
 }
 
-export type ItemRunResult =
-  | ItemRunSuccess
-  | ItemRunSkipped
-  | ItemRunFailed;
+export type ItemRunResult = ItemRunSuccess | ItemRunSkipped | ItemRunFailed;

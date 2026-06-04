@@ -22,7 +22,7 @@
 Zotero selected regular items
   -> resolve PDF attachment
   -> read local PDF path
-  -> Zhiyi PDF parse API
+  -> selected PDF parser provider
   -> Markdown with temporary image URLs
   -> optional PicGo upload and URL replacement
   -> write temporary .md file
@@ -63,6 +63,7 @@ Zotero data access
 
 External services
   modules/zhiyiPdfClient.ts
+  modules/mineruPdfClient.ts
   modules/picgoServerClient.ts
 
 Markdown processing
@@ -113,7 +114,7 @@ Configuration
 
 1. 检查是否已有带 `zotero-pdf-to-markdown` tag 的附件。
 2. 解析 PDF 附件和本地文件路径。
-3. 调用知意 API 将 PDF 转 Markdown。
+3. 按 `pdfParserProvider` 调用知意或 MinerU 将 PDF 转 Markdown。
 4. 如果启用 PicGo 上传，提取 Markdown 图片引用。
 5. 根据 `skipUrlPrefixes` 过滤已托管图片。
 6. 逐个调用 PicGo Server 上传图片。
@@ -122,10 +123,12 @@ Configuration
 9. 写入临时 `.md` 文件并导入 Zotero。
 10. 返回 success / skipped / failed 结果。
 
-当前实现有两个固定运行参数：
+当前实现有两组固定运行参数：
 
 - 知意轮询间隔：`3000ms`
 - 知意任务超时：`10min`
+- MinerU 轮询间隔：`3000ms`
+- MinerU 任务超时：`10min`
 
 ### 3.3 Zotero 数据访问
 
@@ -154,7 +157,7 @@ export const GENERATED_MARKDOWN_TAG = "zotero-pdf-to-markdown";
 
 ### 4.1 知意 PDF 解析 API
 
-`src/modules/zhiyiPdfClient.ts` 封装知意 PDF 解析流程。当前实现使用异步任务模型：
+选择 `pdfParserProvider=zhiyi` 时，`src/modules/zhiyiPdfClient.ts` 封装知意 PDF 解析流程。当前实现使用异步任务模型：
 
 1. `POST /api/pdf-to-markdown-proxy/parse`
 2. `GET /api/pdf-to-markdown-proxy/status/{task_id}`
@@ -180,7 +183,43 @@ enable_cross_page_merge=<pref>
 - `pending` 状态会归一化为 `processing`。
 - 任务状态支持 `waiting`、`processing`、`completed`、`failed`。
 
-### 4.2 PicGo Server
+### 4.2 MinerU 精准解析 API
+
+选择 `pdfParserProvider=mineru` 时，`src/modules/mineruPdfClient.ts` 封装 MinerU 精准解析流程。该接口需要 MinerU API Token，并通过 `Authorization: Bearer <Token>` 请求。
+
+当前实现使用本地文件批量上传解析模型：
+
+1. `POST /api/v4/file-urls/batch`
+2. `PUT <file_urls[0]>`
+3. `GET /api/v4/extract-results/batch/{batch_id}`
+4. `GET <full_zip_url>`
+5. 从结果 ZIP 中读取 `full.md`
+
+上传任务参数当前包括：
+
+```text
+files[0].name=<local PDF filename>
+files[0].data_id=<itemKey-pdfAttachmentKey>
+files[0].is_ocr=<pref>
+files[0].page_ranges=<pref, optional>
+model_version=<pref>
+language=<pref>
+enable_table=<pref>
+enable_formula=<pref>
+```
+
+关键约束：
+
+- 创建上传链接和查询结果必须发送 `Authorization: Bearer <Token>`。
+- 上传文件到签名 URL 时不设置 `Content-Type` header。
+- 上传完成后无需额外提交解析任务，MinerU 自动扫描并提交解析。
+- `state=done` 时使用 `full_zip_url` 下载结果 ZIP。
+- Markdown 内容来自结果 ZIP 中的 `full.md`。
+- `state=failed` 时错误信息来自 `err_msg`。
+- 任务状态支持 `waiting-file`、`pending`、`running`、`converting`、`done`、`failed`。
+- MinerU `full.md` 中的远程图片 URL 后续仍可进入 PicGo URL 替换流程。
+
+### 4.3 PicGo Server
 
 启用 `enablePicgoUpload` 后，`src/modules/picgoServerClient.ts` 封装 PicGo Server 上传。默认目标接口：
 
@@ -233,20 +272,29 @@ MVP 支持两类图片引用：
 
 默认偏好定义在 `addon/prefs.js`，运行时由 `src/modules/prefs.ts` 读取。
 
-| 配置项 | 默认值 | 说明 |
-| --- | --- | --- |
-| `zhiyiApiUrl` | `https://www.zhiyipdf.com` | 知意 API base URL |
-| `zhiyiApiKey` | 空 | 知意 API Key |
-| `zhiyiTableMode` | `markdown` | 知意表格输出模式 |
-| `zhiyiFormulaFormat` | `dollar` | 公式输出格式 |
-| `zhiyiEnableCrossPageMerge` | `true` | 是否启用跨页合并 |
-| `enablePicgoUpload` | `true` | 是否通过 PicGo 上传并替换图片 URL |
-| `picgoUploadUrl` | `http://127.0.0.1:36677/upload` | PicGo Server 上传接口 |
-| `picgoSecret` | 空 | PicGo Server secret，可选 |
-| `picgoUploadIntervalMs` | `250` | 单图上传后的等待时间 |
-| `skipUrlPrefixes` | 空 | 每行一个跳过上传的 URL 前缀 |
-| `markdownFilenameTemplate` | `{firstAuthor}-{year}-{title}.md` | Markdown 文件名模板 |
-| `existingMarkdownStrategy` | `skip` | 当前固定为跳过已有插件附件 |
+| 配置项                      | 默认值                            | 说明                                  |
+| --------------------------- | --------------------------------- | ------------------------------------- |
+| `pdfParserProvider`         | `zhiyi`                           | PDF 解析服务，支持 `zhiyi` / `mineru` |
+| `zhiyiApiUrl`               | `https://www.zhiyipdf.com`        | 知意 API base URL                     |
+| `zhiyiApiKey`               | 空                                | 知意 API Key                          |
+| `zhiyiTableMode`            | `markdown`                        | 知意表格输出模式                      |
+| `zhiyiFormulaFormat`        | `dollar`                          | 公式输出格式                          |
+| `zhiyiEnableCrossPageMerge` | `true`                            | 是否启用跨页合并                      |
+| `mineruApiUrl`              | `https://mineru.net`              | MinerU API base URL                   |
+| `mineruApiToken`            | 空                                | MinerU API Token                      |
+| `mineruModelVersion`        | `vlm`                             | MinerU `model_version`                |
+| `mineruLanguage`            | `ch`                              | MinerU OCR 语言参数                   |
+| `mineruEnableTable`         | `true`                            | MinerU 是否启用表格识别               |
+| `mineruIsOcr`               | `false`                           | MinerU 是否启用 OCR                   |
+| `mineruEnableFormula`       | `true`                            | MinerU 是否启用公式识别               |
+| `mineruPageRanges`          | 空                                | MinerU `page_ranges`，例如 `2,4-6`    |
+| `enablePicgoUpload`         | `true`                            | 是否通过 PicGo 上传并替换图片 URL     |
+| `picgoUploadUrl`            | `http://127.0.0.1:36677/upload`   | PicGo Server 上传接口                 |
+| `picgoSecret`               | 空                                | PicGo Server secret，可选             |
+| `picgoUploadIntervalMs`     | `250`                             | 单图上传后的等待时间                  |
+| `skipUrlPrefixes`           | 空                                | 每行一个跳过上传的 URL 前缀           |
+| `markdownFilenameTemplate`  | `{firstAuthor}-{year}-{title}.md` | Markdown 文件名模板                   |
+| `existingMarkdownStrategy`  | `skip`                            | 当前固定为跳过已有插件附件            |
 
 偏好页由 `addon/content/preferences.xhtml` 和 locale 文件渲染，当前提供中文和英文标签。`preferenceScript.ts` 负责注册偏好页，并为配置控件绑定变更日志。
 
@@ -281,6 +329,8 @@ MVP 支持两类图片引用：
 - 知意 API Key 为空。
 - 知意任务创建、状态查询或下载失败。
 - 知意任务超时或返回 failed。
+- MinerU 任务创建、签名上传、状态查询或 Markdown 下载失败。
+- MinerU 任务超时或返回 failed。
 - 下载结果不是 Markdown。
 - PicGo Server HTTP 失败。
 - PicGo 返回结构不符合预期。
@@ -309,6 +359,7 @@ test/batchRunner.test.ts
 test/filenameTemplate.test.ts
 test/markdownAttachmentImporter.test.ts
 test/markdownImages.test.ts
+test/mineruPdfClient.test.ts
 test/pdfAttachmentResolver.test.ts
 test/picgoServerClient.test.ts
 test/selectedItems.test.ts
@@ -321,11 +372,12 @@ test/startup.test.ts
 ```powershell
 npx mocha --require ts-node/register test/markdownImages.test.ts
 npx mocha --require ts-node/register test/filenameTemplate.test.ts
+npx mocha --require ts-node/register test/mineruPdfClient.test.ts
 npx mocha --require ts-node/register test/picgoServerClient.test.ts
 npx mocha --require ts-node/register test/zhiyiPdfClient.test.ts
 ```
 
-端到端验证需要真实 Zotero 9、知意 API Key 和本机 PicGo Server。真实知意解析会消耗积分，真实 Zotero 测试应优先使用可丢弃条目。
+端到端验证需要真实 Zotero 9、所选 PDF 解析服务和本机 PicGo Server。知意和 MinerU 精准解析均需要各自的 API Key/Token。
 
 ## 10. 当前非目标
 
@@ -333,7 +385,7 @@ MVP 暂不实现以下能力：
 
 - 替换或更新已有 Markdown 附件。
 - 多 PDF 附件选择 UI。
-- 知意任务并发处理。
+- PDF 解析任务并发处理。
 - PicGo 远端文件名控制。
 - 对 Zotero `storage` 文件做导入后原地修改。
 - 使用 Zotero Web API、`pyzotero` 或 `zotero-mcp` 写入本地库。
@@ -358,4 +410,5 @@ MVP 暂不实现以下能力：
 - Zotero Plugin Development: https://www.zotero.org/support/dev/client_coding/plugin_development
 - Zotero JavaScript API: https://www.zotero.org/support/dev/client_coding/javascript_api
 - 知意 PDF 解析 API: https://www.zhiyipdf.com/api-docs?doc=pdf-parse
+- MinerU API 文档: https://mineru.net/apiManage/docs
 - PicGo Server 文档: https://docs.picgo.app/zh/gui/guide/advance#picgo-server%E7%9A%84%E4%BD%BF%E7%94%A8

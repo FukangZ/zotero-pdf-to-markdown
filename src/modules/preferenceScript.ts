@@ -1,11 +1,20 @@
 import { config } from "../../package.json";
 
 const preferenceKeys = [
+  "pdfParserProvider",
   "zhiyiApiUrl",
   "zhiyiApiKey",
   "zhiyiTableMode",
   "zhiyiFormulaFormat",
   "zhiyiEnableCrossPageMerge",
+  "mineruApiUrl",
+  "mineruApiToken",
+  "mineruModelVersion",
+  "mineruLanguage",
+  "mineruEnableTable",
+  "mineruIsOcr",
+  "mineruEnableFormula",
+  "mineruPageRanges",
   "enablePicgoUpload",
   "picgoUploadUrl",
   "picgoSecret",

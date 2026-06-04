@@ -7,11 +7,20 @@
 declare namespace _ZoteroTypes {
   interface Prefs {
     PluginPrefsMap: {
+      "pdfParserProvider": string;
       "zhiyiApiUrl": string;
       "zhiyiApiKey": string;
       "zhiyiTableMode": string;
       "zhiyiFormulaFormat": string;
       "zhiyiEnableCrossPageMerge": boolean;
+      "mineruApiUrl": string;
+      "mineruApiToken": string;
+      "mineruModelVersion": string;
+      "mineruLanguage": string;
+      "mineruEnableTable": boolean;
+      "mineruIsOcr": boolean;
+      "mineruEnableFormula": boolean;
+      "mineruPageRanges": string;
       "enablePicgoUpload": boolean;
       "picgoUploadUrl": string;
       "picgoSecret": string;

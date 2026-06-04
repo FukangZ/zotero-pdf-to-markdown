@@ -6,6 +6,7 @@ import {
   rewriteImageReferences,
 } from "./markdownImages";
 import { importMarkdownAttachment } from "./markdownAttachmentImporter";
+import { MineruPdfClient } from "./mineruPdfClient";
 import {
   hasMarkdownAttachment,
   resolvePdfAttachment,
@@ -16,6 +17,12 @@ import { ZhiyiPdfClient } from "./zhiyiPdfClient";
 
 const DEFAULT_ZHIYI_POLL_INTERVAL_MS = 3000;
 const DEFAULT_ZHIYI_TIMEOUT_MS = 10 * 60 * 1000;
+const DEFAULT_MINERU_POLL_INTERVAL_MS = 3000;
+const DEFAULT_MINERU_TIMEOUT_MS = 10 * 60 * 1000;
+
+interface PdfToMarkdownClient {
+  convert(pdfPath: string, context: ConversionContext): Promise<string>;
+}
 
 export async function runBatch(
   items: Zotero.Item[],
@@ -41,7 +48,7 @@ export async function runBatch(
       }
 
       const pdf = await resolvePdfAttachment(item);
-      const markdown = await createZhiyiClient(prefs).convert(
+      const markdown = await createPdfToMarkdownClient(prefs).convert(
         pdf.filePath,
         createConversionContext(item, title, pdf.attachment),
       );
@@ -100,7 +107,26 @@ function createConversionContext(
   };
 }
 
-function createZhiyiClient(prefs: PluginPrefs): ZhiyiPdfClient {
+function createPdfToMarkdownClient(prefs: PluginPrefs): PdfToMarkdownClient {
+  if (prefs.pdfParserProvider === "mineru") {
+    return new MineruPdfClient({
+      apiUrl: prefs.mineruApiUrl,
+      apiToken: prefs.mineruApiToken,
+      modelVersion: prefs.mineruModelVersion,
+      language: prefs.mineruLanguage,
+      enableTable: prefs.mineruEnableTable,
+      isOcr: prefs.mineruIsOcr,
+      enableFormula: prefs.mineruEnableFormula,
+      pageRanges: prefs.mineruPageRanges,
+      pollIntervalMs: DEFAULT_MINERU_POLL_INTERVAL_MS,
+      timeoutMs: DEFAULT_MINERU_TIMEOUT_MS,
+    });
+  }
+
+  return createZhiyiClient(prefs);
+}
+
+function createZhiyiClient(prefs: PluginPrefs): PdfToMarkdownClient {
   return new ZhiyiPdfClient({
     apiUrl: prefs.zhiyiApiUrl,
     apiKey: prefs.zhiyiApiKey,

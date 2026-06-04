@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { zipSync } from "fflate";
 import { runBatch } from "../src/modules/batchRunner";
 import type { PluginPrefs } from "../src/modules/types";
 
@@ -136,9 +137,7 @@ describe("batchRunner", function () {
       "C:\\temp\\zotero-pdf-to-markdown-images-ITEM1\\Paper-fig-001.png",
     ]);
     assert.deepEqual(uploadedLists, [
-      [
-        "C:\\temp\\zotero-pdf-to-markdown-images-ITEM1\\Paper-fig-001.png",
-      ],
+      ["C:\\temp\\zotero-pdf-to-markdown-images-ITEM1\\Paper-fig-001.png"],
     ]);
     assert.equal(importedMarkdown, "![fig](https://cdn.example.com/a.png)");
   });
@@ -225,15 +224,129 @@ describe("batchRunner", function () {
     assert.deepEqual(downloadedImagePaths, []);
     assert.equal(importedMarkdown, "![fig](https://tmp.example.com/a.png)");
   });
+
+  it("converts a PDF through MinerU when selected in preferences", async function () {
+    const item = createItem({ id: 1, key: "ITEM1", title: "Paper" });
+    const pdfAttachment = createAttachment({
+      id: 2,
+      key: "PDF1",
+      contentType: "application/pdf",
+      filename: "paper.pdf",
+      filePath: "C:\\papers\\paper.pdf",
+    });
+    const importedAttachment = {
+      id: 3,
+      addTag: () => true,
+      saveTx: async () => undefined,
+    };
+    let importedMarkdown = "";
+
+    (globalThis as any).Zotero = {
+      Items: {
+        get: () => pdfAttachment,
+        getAsync: async () => [pdfAttachment],
+      },
+      Attachments: {
+        importFromFile: async () => importedAttachment,
+      },
+    };
+    (globalThis as any).File.createFromFileName = async () => new Blob(["pdf"]);
+    (globalThis as any).PathUtils = {
+      filename: () => "paper.pdf",
+      join: (...parts: string[]) => parts.join("\\"),
+      tempDir: "C:\\temp",
+    };
+    (globalThis as any).IOUtils = {
+      makeDirectory: async () => undefined,
+      writeUTF8: async (_path: string, markdown: string) => {
+        importedMarkdown = markdown;
+      },
+      remove: async () => undefined,
+    };
+    (globalThis as any).fetch = async (url: string, init?: RequestInit) => {
+      if (url.endsWith("/api/v4/file-urls/batch")) {
+        void init;
+        return jsonResponse({
+          code: 0,
+          data: {
+            batch_id: "BATCH1",
+            file_urls: ["https://oss-mineru.example.com/upload"],
+          },
+          msg: "ok",
+        });
+      }
+
+      if (url === "https://oss-mineru.example.com/upload") {
+        void init;
+        return jsonResponse({});
+      }
+
+      if (url.endsWith("/api/v4/extract-results/batch/BATCH1")) {
+        return jsonResponse({
+          code: 0,
+          data: {
+            batch_id: "BATCH1",
+            extract_result: [
+              {
+                file_name: "paper.pdf",
+                data_id: "ITEM1-PDF1",
+                state: "done",
+                full_zip_url: "https://cdn-mineru.example.com/result.zip",
+              },
+            ],
+          },
+          msg: "ok",
+        });
+      }
+
+      if (url === "https://cdn-mineru.example.com/result.zip") {
+        return binaryResponse(
+          zipSync({
+            "paper/full.md": new TextEncoder().encode("# MinerU Markdown"),
+          }),
+        );
+      }
+
+      throw new Error(`Unexpected fetch URL: ${url}`);
+    };
+
+    const results = await runBatch(
+      [item as Zotero.Item],
+      createPrefs({
+        pdfParserProvider: "mineru",
+        enablePicgoUpload: false,
+      }),
+    );
+
+    assert.deepEqual(results, [
+      {
+        status: "success",
+        itemID: 1,
+        itemKey: "ITEM1",
+        title: "Paper",
+        attachmentID: 3,
+      },
+    ]);
+    assert.equal(importedMarkdown, "# MinerU Markdown");
+  });
 });
 
 function createPrefs(options: Partial<PluginPrefs> = {}): PluginPrefs {
   return {
+    pdfParserProvider: "zhiyi",
     zhiyiApiUrl: "https://zhiyi.example.com",
     zhiyiApiKey: "test-key",
     zhiyiTableMode: "markdown",
     zhiyiFormulaFormat: "dollar",
     zhiyiEnableCrossPageMerge: true,
+    mineruApiUrl: "https://mineru.example.com",
+    mineruApiToken: "token",
+    mineruModelVersion: "vlm",
+    mineruLanguage: "ch",
+    mineruEnableTable: true,
+    mineruIsOcr: false,
+    mineruEnableFormula: true,
+    mineruPageRanges: "",
     enablePicgoUpload: true,
     picgoUploadUrl: "http://127.0.0.1:36677/upload",
     picgoSecret: "",
@@ -293,7 +406,16 @@ function textResponse(body: string): Response {
   } as unknown as Response;
 }
 
-function binaryResponse(contentType: string): Response {
+function binaryResponse(contentTypeOrBytes: string | Uint8Array): Response {
+  const contentType =
+    typeof contentTypeOrBytes === "string"
+      ? contentTypeOrBytes
+      : "application/zip";
+  const bytes =
+    typeof contentTypeOrBytes === "string"
+      ? new Uint8Array([1, 2, 3])
+      : contentTypeOrBytes;
+
   return {
     ok: true,
     status: 200,
@@ -301,6 +423,6 @@ function binaryResponse(contentType: string): Response {
       get: (name: string) =>
         name.toLowerCase() === "content-type" ? contentType : null,
     },
-    arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+    arrayBuffer: async () => bytes.buffer.slice(0),
   } as unknown as Response;
 }
