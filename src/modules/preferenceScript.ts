@@ -54,4 +54,55 @@ function bindPrefEvents(_window: Window): void {
       ztoolkit.log(`Preference changed: ${preferenceKey}`);
     });
   }
+
+  bindVisibilityEvents(document);
+  _window.setTimeout(() => updatePreferenceVisibility(document), 0);
+}
+
+function bindVisibilityEvents(document: Document): void {
+  const parserProviderSelect = getElement<HTMLSelectElement>(
+    document,
+    "pdfParserProvider",
+  );
+  const enablePicgoUploadCheckbox = getElement<HTMLInputElement>(
+    document,
+    "enablePicgoUpload",
+  );
+
+  parserProviderSelect?.addEventListener("change", () => {
+    updatePreferenceVisibility(document);
+  });
+  enablePicgoUploadCheckbox?.addEventListener("change", () => {
+    updatePreferenceVisibility(document);
+  });
+}
+
+function updatePreferenceVisibility(document: Document): void {
+  const parserProvider =
+    getElement<HTMLSelectElement>(document, "pdfParserProvider")?.value ??
+    "zhiyi";
+  const enablePicgoUpload =
+    getElement<HTMLInputElement>(document, "enablePicgoUpload")?.checked ??
+    true;
+
+  for (const section of document.querySelectorAll<HTMLElement>(
+    "[data-parser-section]",
+  )) {
+    section.hidden = section.dataset.parserSection !== parserProvider;
+  }
+
+  for (const section of document.querySelectorAll<HTMLElement>(
+    "[data-picgo-section]",
+  )) {
+    section.hidden = !enablePicgoUpload;
+  }
+}
+
+function getElement<T extends Element>(
+  document: Document,
+  preferenceKey: (typeof preferenceKeys)[number],
+): T | null {
+  return document.querySelector(
+    `#zotero-prefpane-${config.addonRef}-${preferenceKey}`,
+  );
 }

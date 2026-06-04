@@ -1,4 +1,10 @@
 pref-title = Zotero PDF 转 Markdown
+pref-section-parser = 解析服务
+pref-section-zhiyi = Zhiyi PDF
+pref-section-mineru = MinerU
+pref-section-images = 图片上传
+pref-section-output = 输出
+pref-advanced-settings = 高级设置
 pref-pdf-parser-provider = PDF 解析服务
 pref-zhiyi-api-url = 知意 API URL
 pref-zhiyi-api-key = 知意 API Key

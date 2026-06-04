@@ -286,7 +286,7 @@ MVP 支持两类图片引用：
 | `mineruApiUrl`              | `https://mineru.net`              | MinerU API base URL                   |
 | `mineruApiToken`            | 空                                | MinerU API Token                      |
 | `mineruModelVersion`        | `vlm`                             | MinerU `model_version`                |
-| `mineruLanguage`            | `ch`                              | MinerU OCR 语言参数                   |
+| `mineruLanguage`            | `en`                              | MinerU OCR 语言参数                   |
 | `mineruEnableTable`         | `true`                            | MinerU 是否启用表格识别               |
 | `mineruIsOcr`               | `false`                           | MinerU 是否启用 OCR                   |
 | `mineruEnableFormula`       | `true`                            | MinerU 是否启用公式识别               |
@@ -294,7 +294,7 @@ MVP 支持两类图片引用：
 | `enablePicgoUpload`         | `true`                            | 是否通过 PicGo 上传并替换图片 URL     |
 | `picgoUploadUrl`            | `http://127.0.0.1:36677/upload`   | PicGo Server 上传接口                 |
 | `picgoSecret`               | 空                                | PicGo Server secret，可选             |
-| `picgoUploadIntervalMs`     | `250`                             | 单图上传后的等待时间                  |
+| `picgoUploadIntervalMs`     | `100`                             | 单图上传后的等待时间                  |
 | `skipUrlPrefixes`           | 空                                | 每行一个跳过上传的 URL 前缀           |
 | `markdownFilenameTemplate`  | `{firstAuthor}-{year}-{title}.md` | Markdown 文件名模板                   |
 | `existingMarkdownStrategy`  | `skip`                            | 当前固定为跳过已有插件附件            |

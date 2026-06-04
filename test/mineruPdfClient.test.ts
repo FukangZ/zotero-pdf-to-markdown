@@ -39,7 +39,7 @@ describe("mineruPdfClient", function () {
             },
           ],
           model_version: "vlm",
-          language: "ch",
+          language: "en",
           enable_table: true,
           enable_formula: true,
         });
@@ -90,7 +90,7 @@ describe("mineruPdfClient", function () {
       apiUrl: "https://mineru.example.com",
       apiToken: "token",
       modelVersion: "vlm",
-      language: "ch",
+      language: "en",
       enableTable: true,
       isOcr: false,
       enableFormula: true,

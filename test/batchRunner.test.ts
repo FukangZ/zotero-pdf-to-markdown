@@ -381,7 +381,7 @@ function createPrefs(options: Partial<PluginPrefs> = {}): PluginPrefs {
     mineruApiUrl: "https://mineru.example.com",
     mineruApiToken: "token",
     mineruModelVersion: "vlm",
-    mineruLanguage: "ch",
+    mineruLanguage: "en",
     mineruEnableTable: true,
     mineruIsOcr: false,
     mineruEnableFormula: true,
