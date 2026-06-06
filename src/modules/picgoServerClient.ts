@@ -57,11 +57,16 @@ export class PicGoServerClient {
       headers.Authorization = this.options.secret;
     }
 
-    const response = await fetch(this.options.uploadUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ list: sourcePaths }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(this.options.uploadUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ list: sourcePaths }),
+      });
+    } catch (error) {
+      throw new Error(formatPicGoConnectionError(this.options.uploadUrl, error));
+    }
 
     const body = await response.json().catch(() => undefined);
 
@@ -71,4 +76,15 @@ export class PicGoServerClient {
 
     return parsePicGoBatchResponse(body, sourcePaths);
   }
+}
+
+function formatPicGoConnectionError(uploadUrl: string, error: unknown): string {
+  const originalMessage =
+    error instanceof Error ? error.message : String(error || "unknown error");
+
+  return [
+    `无法连接 PicGo Server（${uploadUrl}）`,
+    "请确认 PicGo 已启动并开启 Server，或在插件偏好中关闭 PicGo 图片上传/检查上传地址",
+    `原始错误：${originalMessage}`,
+  ].join("。");
 }
