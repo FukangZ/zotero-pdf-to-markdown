@@ -1,0 +1,97 @@
+import { createItemImageFilename } from "./imageFilename";
+
+export interface DownloadedImageFile {
+  sourceUrl: string;
+  filename: string;
+  filePath: string;
+}
+
+const IMAGE_EXTENSION_BY_CONTENT_TYPE = new Map([
+  ["image/png", ".png"],
+  ["image/jpeg", ".jpg"],
+  ["image/jpg", ".jpg"],
+  ["image/webp", ".webp"],
+  ["image/gif", ".gif"],
+  ["image/svg+xml", ".svg"],
+]);
+
+export async function downloadImageFiles(params: {
+  urls: string[];
+  directory: string;
+  itemKey: string;
+}): Promise<DownloadedImageFile[]> {
+  await IOUtils.makeDirectory(params.directory, {
+    createAncestors: true,
+    ignoreExisting: true,
+  });
+
+  return Promise.all(
+    params.urls.map(async (url, index) => {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`Image download HTTP ${response.status} for ${url}`);
+      }
+
+      const extension = inferImageExtension(
+        response.headers.get("content-type"),
+        url,
+      );
+      const filename = createItemImageFilename(
+        params.itemKey,
+        index + 1,
+        extension,
+      );
+      const filePath = PathUtils.join(params.directory, filename);
+      const bytes = new Uint8Array(await response.arrayBuffer());
+
+      await IOUtils.write(filePath, bytes);
+
+      return {
+        sourceUrl: url,
+        filename,
+        filePath,
+      };
+    }),
+  );
+}
+
+export function inferImageExtension(
+  contentType: string | null,
+  url: string,
+): string {
+  const normalizedContentType = contentType
+    ?.split(";")[0]
+    ?.trim()
+    .toLowerCase();
+  const contentTypeExtension = normalizedContentType
+    ? IMAGE_EXTENSION_BY_CONTENT_TYPE.get(normalizedContentType)
+    : undefined;
+
+  if (contentTypeExtension) {
+    return contentTypeExtension;
+  }
+
+  const urlExtension = getUrlImageExtension(url);
+  return urlExtension ?? ".png";
+}
+
+function getUrlImageExtension(url: string): string | undefined {
+  const pathname = getUrlPathname(url);
+  const match = pathname.match(/\.(png|jpe?g|webp|gif|svg)$/i);
+
+  if (!match) {
+    return undefined;
+  }
+
+  const extension = match[1].toLowerCase();
+  return extension === "jpeg" ? ".jpg" : `.${extension}`;
+}
+
+function getUrlPathname(url: string): string {
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return url.split(/[?#]/)[0];
+  }
+}

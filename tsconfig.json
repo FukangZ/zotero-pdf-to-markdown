@@ -1,0 +1,16 @@
+{
+  "extends": "zotero-types/entries/sandbox/",
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS",
+      "moduleResolution": "Node",
+      "types": ["zotero-types/entries/sandbox", "mocha", "node"]
+    },
+    "moduleTypes": {
+      "src/**/*.ts": "cjs",
+      "test/**/*.ts": "cjs"
+    }
+  },
+  "include": ["src", "typings"],
+  "exclude": ["build", "addon"]
+}

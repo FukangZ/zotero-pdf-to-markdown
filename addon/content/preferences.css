@@ -1,0 +1,44 @@
+.zotero-pdf-to-markdown-prefs {
+  max-width: 760px;
+}
+
+.zotero-pdf-to-markdown-prefs h2 {
+  margin: 0 0 10px;
+}
+
+.zotero-pdf-to-markdown-section {
+  margin-top: 12px;
+}
+
+.zotero-pdf-to-markdown-section-title {
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.zotero-pdf-to-markdown-field {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 150px minmax(240px, 1fr);
+  margin: 6px 0;
+}
+
+.zotero-pdf-to-markdown-field label {
+  text-align: left;
+}
+
+.zotero-pdf-to-markdown-field input,
+.zotero-pdf-to-markdown-field select,
+.zotero-pdf-to-markdown-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.zotero-pdf-to-markdown-advanced {
+  margin-top: 6px;
+}
+
+.zotero-pdf-to-markdown-advanced summary {
+  cursor: pointer;
+  margin-left: 150px;
+}

@@ -1,0 +1,419 @@
+<linkset>
+  <html:link rel="localization" href="__addonRef__-preferences.ftl" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://zoteropdftomarkdown/content/preferences.css"
+  />
+</linkset>
+<groupbox
+  class="zotero-pdf-to-markdown-prefs"
+  onload="Zotero.__addonInstance__.hooks.onPrefsEvent('load', { window })"
+>
+  <html:h2 data-l10n-id="pref-title"></html:h2>
+
+  <vbox>
+    <html:section class="zotero-pdf-to-markdown-section">
+      <html:p
+        class="zotero-pdf-to-markdown-section-title"
+        data-l10n-id="pref-section-parser"
+      ></html:p>
+      <html:div class="zotero-pdf-to-markdown-field">
+        <html:label
+          for="zotero-prefpane-__addonRef__-pdfParserProvider"
+          data-l10n-id="pref-pdf-parser-provider"
+        ></html:label>
+        <html:select
+          id="zotero-prefpane-__addonRef__-pdfParserProvider"
+          preference="pdfParserProvider"
+        >
+          <html:option value="zhiyi">Zhiyi PDF</html:option>
+          <html:option value="mineru">MinerU</html:option>
+          <html:option value="glmocr">GLM-OCR</html:option>
+        </html:select>
+      </html:div>
+    </html:section>
+
+    <html:section
+      class="zotero-pdf-to-markdown-section"
+      data-parser-section="zhiyi"
+    >
+      <html:p
+        class="zotero-pdf-to-markdown-section-title"
+        data-l10n-id="pref-section-zhiyi"
+      ></html:p>
+      <html:a
+        class="zotero-pdf-to-markdown-doc-link"
+        data-parser-doc-link="zhiyi"
+        data-l10n-id="pref-parser-docs"
+        target="_blank"
+      ></html:a>
+      <html:div class="zotero-pdf-to-markdown-field">
+        <html:label
+          for="zotero-prefpane-__addonRef__-zhiyiApiKey"
+          data-l10n-id="pref-zhiyi-api-key"
+        ></html:label>
+        <html:input
+          type="password"
+          id="zotero-prefpane-__addonRef__-zhiyiApiKey"
+          preference="zhiyiApiKey"
+        ></html:input>
+      </html:div>
+      <html:details class="zotero-pdf-to-markdown-advanced">
+        <html:summary data-l10n-id="pref-advanced-settings"></html:summary>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-zhiyiApiUrl"
+            data-l10n-id="pref-zhiyi-api-url"
+          ></html:label>
+          <html:input
+            type="url"
+            id="zotero-prefpane-__addonRef__-zhiyiApiUrl"
+            preference="zhiyiApiUrl"
+          ></html:input>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-zhiyiTableMode"
+            data-l10n-id="pref-zhiyi-table-mode"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-zhiyiTableMode"
+            preference="zhiyiTableMode"
+          >
+            <html:option value="markdown">markdown</html:option>
+            <html:option value="image">image</html:option>
+          </html:select>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-zhiyiFormulaFormat"
+            data-l10n-id="pref-zhiyi-formula-format"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-zhiyiFormulaFormat"
+            preference="zhiyiFormulaFormat"
+          >
+            <html:option value="dollar">dollar</html:option>
+            <html:option value="bracket">bracket</html:option>
+          </html:select>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-zhiyiEnableCrossPageMerge"
+            data-l10n-id="pref-zhiyi-enable-cross-page-merge"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-zhiyiEnableCrossPageMerge"
+            preference="zhiyiEnableCrossPageMerge"
+          >
+            <html:option value="true">true</html:option>
+            <html:option value="false">false</html:option>
+          </html:select>
+        </html:div>
+      </html:details>
+    </html:section>
+
+    <html:section
+      class="zotero-pdf-to-markdown-section"
+      data-parser-section="mineru"
+      hidden="hidden"
+    >
+      <html:p
+        class="zotero-pdf-to-markdown-section-title"
+        data-l10n-id="pref-section-mineru"
+      ></html:p>
+      <html:a
+        class="zotero-pdf-to-markdown-doc-link"
+        data-parser-doc-link="mineru"
+        data-l10n-id="pref-parser-docs"
+        target="_blank"
+      ></html:a>
+      <html:div class="zotero-pdf-to-markdown-field">
+        <html:label
+          for="zotero-prefpane-__addonRef__-mineruApiToken"
+          data-l10n-id="pref-mineru-api-token"
+        ></html:label>
+        <html:input
+          type="password"
+          id="zotero-prefpane-__addonRef__-mineruApiToken"
+          preference="mineruApiToken"
+        ></html:input>
+      </html:div>
+      <html:details class="zotero-pdf-to-markdown-advanced">
+        <html:summary data-l10n-id="pref-advanced-settings"></html:summary>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-mineruApiUrl"
+            data-l10n-id="pref-mineru-api-url"
+          ></html:label>
+          <html:input
+            type="url"
+            id="zotero-prefpane-__addonRef__-mineruApiUrl"
+            preference="mineruApiUrl"
+          ></html:input>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-mineruModelVersion"
+            data-l10n-id="pref-mineru-model-version"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-mineruModelVersion"
+            preference="mineruModelVersion"
+          >
+            <html:option value="vlm">vlm</html:option>
+            <html:option value="pipeline">pipeline</html:option>
+            <html:option value="MinerU-HTML">MinerU-HTML</html:option>
+          </html:select>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-mineruLanguage"
+            data-l10n-id="pref-mineru-language"
+          ></html:label>
+          <html:input
+            type="text"
+            id="zotero-prefpane-__addonRef__-mineruLanguage"
+            preference="mineruLanguage"
+          ></html:input>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-mineruEnableTable"
+            data-l10n-id="pref-mineru-enable-table"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-mineruEnableTable"
+            preference="mineruEnableTable"
+          >
+            <html:option value="true">true</html:option>
+            <html:option value="false">false</html:option>
+          </html:select>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-mineruIsOcr"
+            data-l10n-id="pref-mineru-is-ocr"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-mineruIsOcr"
+            preference="mineruIsOcr"
+          >
+            <html:option value="true">true</html:option>
+            <html:option value="false">false</html:option>
+          </html:select>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-mineruEnableFormula"
+            data-l10n-id="pref-mineru-enable-formula"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-mineruEnableFormula"
+            preference="mineruEnableFormula"
+          >
+            <html:option value="true">true</html:option>
+            <html:option value="false">false</html:option>
+          </html:select>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-mineruPageRanges"
+            data-l10n-id="pref-mineru-page-ranges"
+          ></html:label>
+          <html:input
+            type="text"
+            id="zotero-prefpane-__addonRef__-mineruPageRanges"
+            preference="mineruPageRanges"
+          ></html:input>
+        </html:div>
+      </html:details>
+    </html:section>
+
+    <html:section
+      class="zotero-pdf-to-markdown-section"
+      data-parser-section="glmocr"
+      hidden="hidden"
+    >
+      <html:p
+        class="zotero-pdf-to-markdown-section-title"
+        data-l10n-id="pref-section-glmocr"
+      ></html:p>
+      <html:a
+        class="zotero-pdf-to-markdown-doc-link"
+        data-parser-doc-link="glmocr"
+        data-l10n-id="pref-parser-docs"
+        target="_blank"
+      ></html:a>
+      <html:div class="zotero-pdf-to-markdown-field">
+        <html:label
+          for="zotero-prefpane-__addonRef__-glmOcrApiKey"
+          data-l10n-id="pref-glmocr-api-key"
+        ></html:label>
+        <html:input
+          type="password"
+          id="zotero-prefpane-__addonRef__-glmOcrApiKey"
+          preference="glmOcrApiKey"
+        ></html:input>
+      </html:div>
+      <html:details class="zotero-pdf-to-markdown-advanced">
+        <html:summary data-l10n-id="pref-advanced-settings"></html:summary>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-glmOcrApiUrl"
+            data-l10n-id="pref-glmocr-api-url"
+          ></html:label>
+          <html:input
+            type="url"
+            id="zotero-prefpane-__addonRef__-glmOcrApiUrl"
+            preference="glmOcrApiUrl"
+          ></html:input>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-glmOcrReturnCropImages"
+            data-l10n-id="pref-glmocr-return-crop-images"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-glmOcrReturnCropImages"
+            preference="glmOcrReturnCropImages"
+          >
+            <html:option value="true">true</html:option>
+            <html:option value="false">false</html:option>
+          </html:select>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-glmOcrNeedLayoutVisualization"
+            data-l10n-id="pref-glmocr-need-layout-visualization"
+          ></html:label>
+          <html:select
+            id="zotero-prefpane-__addonRef__-glmOcrNeedLayoutVisualization"
+            preference="glmOcrNeedLayoutVisualization"
+          >
+            <html:option value="true">true</html:option>
+            <html:option value="false">false</html:option>
+          </html:select>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-glmOcrStartPageId"
+            data-l10n-id="pref-glmocr-start-page-id"
+          ></html:label>
+          <html:input
+            type="number"
+            min="0"
+            id="zotero-prefpane-__addonRef__-glmOcrStartPageId"
+            preference="glmOcrStartPageId"
+          ></html:input>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-glmOcrEndPageId"
+            data-l10n-id="pref-glmocr-end-page-id"
+          ></html:label>
+          <html:input
+            type="number"
+            min="0"
+            id="zotero-prefpane-__addonRef__-glmOcrEndPageId"
+            preference="glmOcrEndPageId"
+          ></html:input>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-glmOcrMaxFileSizeMb"
+            data-l10n-id="pref-glmocr-max-file-size-mb"
+          ></html:label>
+          <html:input
+            type="number"
+            min="1"
+            id="zotero-prefpane-__addonRef__-glmOcrMaxFileSizeMb"
+            preference="glmOcrMaxFileSizeMb"
+          ></html:input>
+        </html:div>
+      </html:details>
+    </html:section>
+
+    <html:section class="zotero-pdf-to-markdown-section">
+      <html:p
+        class="zotero-pdf-to-markdown-section-title"
+        data-l10n-id="pref-section-images"
+      ></html:p>
+      <html:div class="zotero-pdf-to-markdown-field">
+        <html:label
+          for="zotero-prefpane-__addonRef__-enablePicgoUpload"
+          data-l10n-id="pref-enable-picgo-upload"
+        ></html:label>
+        <html:select
+          id="zotero-prefpane-__addonRef__-enablePicgoUpload"
+          preference="enablePicgoUpload"
+        >
+          <html:option value="true">true</html:option>
+          <html:option value="false">false</html:option>
+        </html:select>
+      </html:div>
+      <html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-picgoUploadUrl"
+            data-l10n-id="pref-picgo-upload-url"
+          ></html:label>
+          <html:input
+            type="url"
+            id="zotero-prefpane-__addonRef__-picgoUploadUrl"
+            preference="picgoUploadUrl"
+          ></html:input>
+        </html:div>
+        <html:div class="zotero-pdf-to-markdown-field">
+          <html:label
+            for="zotero-prefpane-__addonRef__-picgoSecret"
+            data-l10n-id="pref-picgo-secret"
+          ></html:label>
+          <html:input
+            type="password"
+            id="zotero-prefpane-__addonRef__-picgoSecret"
+            preference="picgoSecret"
+          ></html:input>
+        </html:div>
+        <html:details class="zotero-pdf-to-markdown-advanced">
+          <html:summary data-l10n-id="pref-advanced-settings"></html:summary>
+          <html:div class="zotero-pdf-to-markdown-field">
+            <html:label
+              for="zotero-prefpane-__addonRef__-skipUrlPrefixes"
+              data-l10n-id="pref-skip-url-prefixes"
+            ></html:label>
+            <html:textarea
+              id="zotero-prefpane-__addonRef__-skipUrlPrefixes"
+              preference="skipUrlPrefixes"
+              rows="3"
+            ></html:textarea>
+          </html:div>
+        </html:details>
+      </html:div>
+    </html:section>
+
+    <html:section class="zotero-pdf-to-markdown-section">
+      <html:p
+        class="zotero-pdf-to-markdown-section-title"
+        data-l10n-id="pref-section-output"
+      ></html:p>
+      <html:div class="zotero-pdf-to-markdown-field">
+        <html:label
+          for="zotero-prefpane-__addonRef__-markdownFilenameTemplate"
+          data-l10n-id="pref-markdown-filename-template"
+        ></html:label>
+        <html:input
+          type="text"
+          id="zotero-prefpane-__addonRef__-markdownFilenameTemplate"
+          preference="markdownFilenameTemplate"
+        ></html:input>
+      </html:div>
+    </html:section>
+  </vbox>
+</groupbox>
+<vbox>
+  <html:label
+    data-l10n-id="pref-help"
+    data-l10n-args='{"time": "__buildTime__","name": "__addonName__","version":"__buildVersion__"}'
+  ></html:label>
+</vbox>
