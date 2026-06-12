@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kang/zotero-pdf-to-markdown.git"
+    "url": "git+https://github.com/FukangZ/zotero-pdf-to-markdown.git"
   },
   "author": "Kang",
   "bugs": {
-    "url": "https://github.com/kang/zotero-pdf-to-markdown/issues"
+    "url": "https://github.com/FukangZ/zotero-pdf-to-markdown/issues"
   },
-  "homepage": "https://github.com/kang/zotero-pdf-to-markdown#readme",
+  "homepage": "https://github.com/FukangZ/zotero-pdf-to-markdown#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",

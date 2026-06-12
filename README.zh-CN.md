@@ -72,7 +72,7 @@ Markdown 副本，同时保持原 PDF 不变。
 发布包可用后，在 Zotero 中安装 `.xpi` 文件：
 
 1. 从
-   [项目 releases 页面](https://github.com/kang/zotero-pdf-to-markdown/releases/latest)
+   [项目 releases 页面](https://github.com/FukangZ/zotero-pdf-to-markdown/releases/latest)
    下载最新 `.xpi` 文件。
 2. 打开 Zotero。
 3. 进入 **工具** -> **插件**。

@@ -78,7 +78,7 @@ This project targets Zotero 9.
 When a release package is available, install the `.xpi` file in Zotero:
 
 1. Download the latest `.xpi` from the
-   [project releases page](https://github.com/kang/zotero-pdf-to-markdown/releases/latest).
+   [project releases page](https://github.com/FukangZ/zotero-pdf-to-markdown/releases/latest).
 2. Open Zotero.
 3. Go to **Tools** -> **Add-ons**.
 4. Click the gear icon and choose **Install Add-on From File...**.
