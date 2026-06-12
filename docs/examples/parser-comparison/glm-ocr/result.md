@@ -6,7 +6,7 @@
 
 </div>
 
-Tian Tan $ ^{*} $ Yue Li $ ^{*} $ Jingling Xue
+Tian Tan $ ^{_} $ Yue Li $ ^{_} $ Jingling Xue
 
 School of Computer Science and Engineering, UNSW, Australia
 
@@ -106,11 +106,11 @@ In Section 2.1, we see that blindly merging objects of the same type is ineffect
 
 In this so-called allocation-type abstraction, all objects with the same type are merged, with one object per type. As previously noted, this naive solution often gains efficiency but may incur a significant loss of precision [19, 27, 38, 51].
 
-Example 2.1. Consider Figure 1, where $ o_{i}^{t} $ represents the abstract object of type t created at the allocation site at line i. We will use this notation in the rest of the paper.
+Example 2.1. Consider Figure 1, where $ o\_{i}^{t} $ represents the abstract object of type t created at the allocation site at line i. We will use this notation in the rest of the paper.
 
-For the three type-dependent clients, call graph construction, devirtualization and may-fail casting, only lines 8-9 are relevant. According to an allocation-site-based Andersen's points-to analysis [4], x, y and z point to $ o_{1}^{A}, o_{2}^{A} $ and $ o_{3}^{A} $ , respectively. As x.f, y.f and z.f are not aliases, a points to $ o_{6}^{C} $ . Thus, a.foo() at line 8 is a mono-call and can thus be devirtualized, and in addition, the cast (C) at line 9 is safe.
+For the three type-dependent clients, call graph construction, devirtualization and may-fail casting, only lines 8-9 are relevant. According to an allocation-site-based Andersen's points-to analysis [4], x, y and z point to $ o*{1}^{A}, o*{2}^{A} $ and $ o*{3}^{A} $ , respectively. As x.f, y.f and z.f are not aliases, a points to $ o*{6}^{C} $ . Thus, a.foo() at line 8 is a mono-call and can thus be devirtualized, and in addition, the cast (C) at line 9 is safe.
 
-However, if $ o_{1}^{A}, o_{2}^{A} $ and $ o_{3}^{A} $ are merged, then x.f, y.f and z.f will be aliases, causing a to also point to $ o_{4}^{B} $ . As a result, a.foo() becomes a poly-call and thus non-devirtualizable. In addition, the cast (C) is no longer considered safe.
+However, if $ o*{1}^{A}, o*{2}^{A} $ and $ o*{3}^{A} $ are merged, then x.f, y.f and z.f will be aliases, causing a to also point to $ o*{4}^{B} $ . As a result, a.foo() becomes a poly-call and thus non-devirtualizable. In addition, the cast (C) is no longer considered safe.
 
 Consider pmd, a program analyzed by (1) 3obj—a 3-object-sensitive points-to analysis [29] using the allocation-site abstraction, (2) T-3obj—3obj using the allocation-type abstraction, and (3) M-3obj—3obj using the MAHJONG heap abstraction introduced in this paper. For 3obj, pmd is analyzed in 14469.3 seconds, allowing 44004 call graph edges to be discovered. T-3obj is the fastest (50.3 seconds), but is the most imprecise (50666 call graph edges). In contrast, M-3obj is as precise as 3obj (44016 call graph edges) but is also nearly as fast as T-3obj (127.7 seconds).
 
@@ -118,7 +118,7 @@ Consider pmd, a program analyzed by (1) 3obj—a 3-object-sensitive points-to an
 
 <div align="center">
 
-Figure 2. Field points-to graph rooted at $ o_{1}^{T} $ and $ o_{2}^{T} $
+Figure 2. Field points-to graph rooted at $ o*{1}^{T} $ and $ o*{2}^{T} $
 
 </div>
 
@@ -128,29 +128,29 @@ To address the needs of type-dependent clients, MAHJONG is designed to maximally
 
 ## 2.2.1 Defining Type-Consistent Objects
 
-After the pre-analysis, the field points-to graph (FPG) is available, representing the points-to information for the object fields. To facilitate a subsequent reduction of the problem of checking type-consistency as one of testing the equivalence of automata, we introduce the field points-to graph rooted at an object o as $ \mathcal{G}_{o} = (\mathcal{H},\mathcal{F},\alpha,o,\mathcal{T},\tau). $ $ \mathcal{H} $ is the set of objects reachable from o. $ \mathcal{F} $ is the set of field names traversed along the way. The points-to relations for the object fields are defined by a field points-to map $ \alpha : \mathcal{H} \times \mathcal{F} \mapsto \mathcal{P}(\mathcal{H}). $ $ \mathcal{T} $ is the set of types of the objects in $ \mathcal{H} $ . The object-to-type map $ \tau : \mathcal{H} \mapsto \mathcal{T} $ reveals the type of an object.
+After the pre-analysis, the field points-to graph (FPG) is available, representing the points-to information for the object fields. To facilitate a subsequent reduction of the problem of checking type-consistency as one of testing the equivalence of automata, we introduce the field points-to graph rooted at an object o as $ \mathcal{G}\_{o} = (\mathcal{H},\mathcal{F},\alpha,o,\mathcal{T},\tau). $ $ \mathcal{H} $ is the set of objects reachable from o. $ \mathcal{F} $ is the set of field names traversed along the way. The points-to relations for the object fields are defined by a field points-to map $ \alpha : \mathcal{H} \times \mathcal{F} \mapsto \mathcal{P}(\mathcal{H}). $ $ \mathcal{T} $ is the set of types of the objects in $ \mathcal{H} $ . The object-to-type map $ \tau : \mathcal{H} \mapsto \mathcal{T} $ reveals the type of an object.
 
-Figure 2 gives the field points-to graphs rooted at $ o_{1}^{T} $ and $ o_{2}^{T} $ , by using the same notation for objects in Figure 1.
+Figure 2 gives the field points-to graphs rooted at $ o*{1}^{T} $ and $ o*{2}^{T} $ , by using the same notation for objects in Figure 1.
 
-Example 2.2. Consider $ o_{2}^{T} $ first in Figure 2. $ \mathcal{G}_{o_{2}^{T}}=(\mathcal{H},\mathcal{F}, $ $ \alpha,o_{2}^{T},\mathcal{T},\tau). $ $ \mathcal{H}=\{o_{2}^{T},o_{4}^{U},o_{6}^{X},o_{8}^{Y}\}; $ $ \mathcal{F}=\{f,g,h,k\}; $ $ \alpha[o_{2}^{T},f]=\{o_{4}^{U}\}, $ $ \alpha[o_{4}^{U},h]=\{o_{8}^{Y}\}, $ $ \alpha[o_{2}^{T},g]=\{o_{6}^{X}\}, $ and $ \alpha[o_{6}^{X},k]=\{o_{8}^{Y}\}; $ $ \mathcal{T}=\{T,U,X,Y\}; $ and $ \tau[o_{2}^{T}]=T, $ $ \tau[o_{4}^{U}]=U, \tau[o_{6}^{X}]=X $ , and $ \tau[o_{8}^{Y}]=Y $ . Similarly, $ \mathcal{G}_{o_{1}^{T}} $ can be constructed.
+Example 2.2. Consider $ o*{2}^{T} $ first in Figure 2. $ \mathcal{G}*{o*{2}^{T}}=(\mathcal{H},\mathcal{F}, $ $ \alpha,o*{2}^{T},\mathcal{T},\tau). $ $ \mathcal{H}=\{o*{2}^{T},o*{4}^{U},o*{6}^{X},o*{8}^{Y}\}; $ $ \mathcal{F}=\{f,g,h,k\}; $ $ \alpha[o_{2}^{T},f]=\{o*{4}^{U}\}, $ $ \alpha[o*{4}^{U},h]=\{o*{8}^{Y}\}, $ $ \alpha[o*{2}^{T},g]=\{o*{6}^{X}\}, $ and $ \alpha[o*{6}^{X},k]=\{o*{8}^{Y}\}; $ $ \mathcal{T}=\{T,U,X,Y\}; $ and $ \tau[o*{2}^{T}]=T, $ $ \tau[o_{4}^{U}]=U, \tau[o_{6}^{X}]=X $ , and $ \tau[o_{8}^{Y}]=Y $ . Similarly, $ \mathcal{G}_{o_{1}^{T}} $ can be constructed.
 
 Unlike the allocation-type abstraction, where all the objects with the same type are merged blindly, we will merge so-called type-consistent objects, thereby avoiding the imprecision introduced by the allocation-type abstraction.
 
-Let $ \bar{f}=f_{1}.f_{2}.\dots.f_{n} $ , where n > 0, be a sequence of field names. For the field points-to graph $ \mathcal{G}_{o} $ rooted at an object o, we write $ pts(o.\bar{f}) $ to represent the set of objects that can be reached from o along any path of points-to edges labeled by $ f_{1}, f_{2}, \dots, f_{n} $ in $ \mathcal{G}_{o} $ in that order. In Figure 2, $ pts(o_{1}^{T}.f)=\{o_{3}^{U}\} $ and $ pts(o_{1}^{T}.f.h)=\{o_{7}^{Y},o_{9}^{Y}\}. $
+Let $ \bar{f}=f*{1}.f*{2}.\dots.f*{n} $ , where n > 0, be a sequence of field names. For the field points-to graph $ \mathcal{G}*{o} $ rooted at an object o, we write $ pts(o.\bar{f}) $ to represent the set of objects that can be reached from o along any path of points-to edges labeled by $ f*{1}, f*{2}, \dots, f*{n} $ in $ \mathcal{G}*{o} $ in that order. In Figure 2, $ pts(o*{1}^{T}.f)=\{o*{3}^{U}\} $ and $ pts(o*{1}^{T}.f.h)=\{o*{7}^{Y},o\_{9}^{Y}\}. $
 
 Two objects with the same type are type-consistent if traversing from the two objects along the same sequence of field names always lead to objects of one single type.
 
-Definition 2.1 (Type-Consistent Objects). Two objects, $ o_{i} $ and $ o_{j} $ , with the same type are said to be type-consistent denoted $ o_{i}\equiv o_{j} $ , if for every sequence of field names, $ \bar{f}=f_{1}.f_{2}.\dots f_{n} $ , the following two conditions hold:
+Definition 2.1 (Type-Consistent Objects). Two objects, $ o*{i} $ and $ o*{j} $ , with the same type are said to be type-consistent denoted $ o*{i}\equiv o*{j} $ , if for every sequence of field names, $ \bar{f}=f*{1}.f*{2}.\dots f\_{n} $ , the following two conditions hold:
 
 $$
 \begin{array}{l} 1. \left\{\tau [ o ] \mid o \in p t s \left(o _ {i}. \bar {f}\right) \right\} = \left\{\tau [ o ] \mid o \in p t s \left(o _ {j}. \bar {f}\right) \right\}, \text {a n d} \\ 2. \left| \left\{\tau [ o ] \mid o \in p t s \left(o _ {i}. \bar {f}\right) \right\} \right| = 1. \\ \end{array}
 $$
 
-In Figure 2, $ o_{1}^{T} $ and $ o_{2}^{T} $ are type-consistent. For the objects reached from $ o_{1}^{T} $ and $ o_{2}^{T} $ , along f, f.h, g and g.k, their sets of types are $ \{U\} $ , $ \{Y\} $ , $ \{X\} $ and $ \{Y\} $ , respectively.
+In Figure 2, $ o*{1}^{T} $ and $ o*{2}^{T} $ are type-consistent. For the objects reached from $ o*{1}^{T} $ and $ o*{2}^{T} $ , along f, f.h, g and g.k, their sets of types are $ \{U\} $ , $ \{Y\} $ , $ \{X\} $ and $ \{Y\} $ , respectively.
 
 We illustrate the intuition behind the notion of typeconsistency with an example discussed below.
 
-Example 2.3. Let us return to Figure 1, for which the allocation-type abstraction will merge $ o_{1}^{A}, o_{2}^{A} $ and $ o_{3}^{A} $ (Section 2.1). By Definition 2.1, $ o_{2}^{A} $ and $ o_{3}^{A} $ are type-consistent (as $ o_{2}^{A}.f $ points to $ o_{5}^{C} $ and $ o_{3}^{A}.f $ points to $ o_{6}^{C} $ ) but $ o_{1}^{A} $ is not type-consistent with any (as $ o_{1}^{A}.f $ points to $ o_{4}^{B} $ ). After $ o_{2}^{A} $ and $ o_{3}^{A} $ are merged, y.f and z.f are regarded as aliases. Thus, a will point to not only $ o_{6}^{C} $ as before but also $ o_{5}^{C} $ spuriously. However, as $ o_{5}^{C} $ and $ o_{6}^{C} $ have the same type C, the precision of call graph construction and devirtualization at line 8 and may-fail casting at line 9 will not be affected.
+Example 2.3. Let us return to Figure 1, for which the allocation-type abstraction will merge $ o*{1}^{A}, o*{2}^{A} $ and $ o*{3}^{A} $ (Section 2.1). By Definition 2.1, $ o*{2}^{A} $ and $ o*{3}^{A} $ are type-consistent (as $ o*{2}^{A}.f $ points to $ o*{5}^{C} $ and $ o*{3}^{A}.f $ points to $ o*{6}^{C} $ ) but $ o*{1}^{A} $ is not type-consistent with any (as $ o*{1}^{A}.f $ points to $ o*{4}^{B} $ ). After $ o*{2}^{A} $ and $ o*{3}^{A} $ are merged, y.f and z.f are regarded as aliases. Thus, a will point to not only $ o*{6}^{C} $ as before but also $ o*{5}^{C} $ spuriously. However, as $ o*{5}^{C} $ and $ o*{6}^{C} $ have the same type C, the precision of call graph construction and devirtualization at line 8 and may-fail casting at line 9 will not be affected.
 
 Let us examine Definition 2.1. Condition 1 is self-explanatory in order to maximally preserve precision for type-dependent clients. What is the rationale behind Condition 2? The pre-analysis is fast but imprecise. Enforcing Condition 2 maximally avoids precision loss, as shown below.
 
@@ -162,7 +162,7 @@ Figure 3. Illustrating Condition 2 in Definition 2.1.
 
 </div>
 
-Example 2.4. Suppose $ o_{i}^{T}.f $ and $ o_{j}^{T}.f $ point to both $ o_{1}^{X} $ and $ o_{2}^{Y} $ during the pre-analysis (Figure 3(a)) but $ o_{1}^{X} $ and $ o_{2}^{Y} $ respectively, in a more precise allocation-site-based pointsto analysis, $ \mathcal{A} $ (Figure 3(b)). If Condition 2 is ignored, $ o_{i}^{T} $ and $ o_{j}^{T} $ will become type-consistent according to the pre-analysis and thus merged into, say, $ o_{k}^{T} $ (represented by $ o_{i}^{T} $ or $ o_{j}^{T} $ ). Running $ \mathcal{A} $ with this new abstraction will result in precision loss, as $ o_{i}^{T}.f $ and $ o_{j}^{T}.f $ now point to objects of types X and Y (Figure 3(c)).
+Example 2.4. Suppose $ o*{i}^{T}.f $ and $ o*{j}^{T}.f $ point to both $ o*{1}^{X} $ and $ o*{2}^{Y} $ during the pre-analysis (Figure 3(a)) but $ o*{1}^{X} $ and $ o*{2}^{Y} $ respectively, in a more precise allocation-site-based pointsto analysis, $ \mathcal{A} $ (Figure 3(b)). If Condition 2 is ignored, $ o*{i}^{T} $ and $ o*{j}^{T} $ will become type-consistent according to the pre-analysis and thus merged into, say, $ o*{k}^{T} $ (represented by $ o*{i}^{T} $ or $ o*{j}^{T} $ ). Running $ \mathcal{A} $ with this new abstraction will result in precision loss, as $ o*{i}^{T}.f $ and $ o\_{j}^{T}.f $ now point to objects of types X and Y (Figure 3(c)).
 
 In Definition 2.1, the type-consistency relation $ \equiv $ is an equivalence relation. It is straightforward to verify that $ \equiv $ is reflexive, symmetric and transitive.
 
@@ -184,23 +184,23 @@ How do we check the type-consistency of two objects efficiently, especially for 
 
 ## 2.2.2 Merging Equivalent Automata
 
-We transform the problem of checking the type-consistency of two objects into one of testing the equivalence of two automata. Figure 4 relates the field points-to graph rooted at an object o, $ \mathcal{G}_{o}=(\mathcal{H},\mathcal{F},\alpha,o,\mathcal{T},\tau) $ , to a 6-tuple sequential automaton $ \mathcal{A}_{o}=\left(Q,\Sigma,\delta,q_{o},\Gamma,\gamma\right) $ [1], which is more general than a traditional (5-tuple) automaton. In fact, a 5-tuple automaton can be turned into a 6-tuple automaton, if its accepting (acc) and non-accepting (non-acc) states are distinguished by $ \gamma:Q\mapsto\Gamma $ , where $ \Gamma=\{ \mathrm{a c c}, \mathrm{n o n - a c c} \} $
+We transform the problem of checking the type-consistency of two objects into one of testing the equivalence of two automata. Figure 4 relates the field points-to graph rooted at an object o, $ \mathcal{G}_{o}=(\mathcal{H},\mathcal{F},\alpha,o,\mathcal{T},\tau) $ , to a 6-tuple sequential automaton $ \mathcal{A}_{o}=\left(Q,\Sigma,\delta,q\_{o},\Gamma,\gamma\right) $ [1], which is more general than a traditional (5-tuple) automaton. In fact, a 5-tuple automaton can be turned into a 6-tuple automaton, if its accepting (acc) and non-accepting (non-acc) states are distinguished by $ \gamma:Q\mapsto\Gamma $ , where $ \Gamma=\{ \mathrm{a c c}, \mathrm{n o n - a c c} \} $
 
-Example 2.5. Continuing from Example 2.2 (Figure 2), the automaton $ \mathcal{A}_{o_{2}^{T}} $ for $ \mathcal{G}_{o_{2}^{T}}=(\mathcal{H},\mathcal{F},\alpha,o_{2}^{T},\mathcal{T},\tau) $ is obtained according to Figure 4. Similarly, $ \mathcal{A}_{o_{1}^{T}} $ is constructed.
+Example 2.5. Continuing from Example 2.2 (Figure 2), the automaton $ \mathcal{A}_{o_{2}^{T}} $ for $ \mathcal{G}_{o_{2}^{T}}=(\mathcal{H},\mathcal{F},\alpha,o*{2}^{T},\mathcal{T},\tau) $ is obtained according to Figure 4. Similarly, $ \mathcal{A}*{o\_{1}^{T}} $ is constructed.
 
-The behavior of $ \mathcal{A}_{o} $ , which can be an NFA (consisting of multiple edges with the same label leaving a state), is:
+The behavior of $ \mathcal{A}\_{o} $ , which can be an NFA (consisting of multiple edges with the same label leaving a state), is:
 
 $$
 \beta_ {\mathcal {A} _ {o}}: \Sigma^ {*} \rightarrow \mathcal {P} (\Gamma)
 $$
 
-If $ \mathcal{A}_{o} $ finally reaches the states, $ s_{1}, s_{2}, \dots , s_{n} $ , after having read an input w in $ \Sigma^{*} $ , then $ \beta_{\mathcal{A}_{o}}(w)=\cup_{i=1}^{n}\gamma[s_{i}]. $
+If $ \mathcal{A}_{o} $ finally reaches the states, $ s_{1}, s*{2}, \dots , s*{n} $ , after having read an input w in $ \Sigma^{\*} $ , then $ \beta*{\mathcal{A}*{o}}(w)=\cup*{i=1}^{n}\gamma[s*{i}]. $
 
-Let $ o_{1}^{T} $ and $ o_{2}^{T} $ be two objects with the same type $ T $ . Let their automata $ \mathcal{A}_{o_{1}^{T}} $ and $ \mathcal{A}_{o_{2}^{T}} $ be built as shown in Figure 4. $ o_{1}^{T} $ and $ o_{2}^{T} $ are type-consistent if, for every input w in $ \Sigma^{*} $ , (1) $ \beta_{\mathcal{A}_{o_{1}^{T}}}(w)=\beta_{\mathcal{A}_{o_{2}^{T}}}(w) $ (Condition 1 of Definition 2.1) and (2) $ |\beta_{\mathcal{A}_{o_{1}^{T}}}(w)|=1 $ (Condition 2 of Definition 2.1).
+Let $ o*{1}^{T} $ and $ o*{2}^{T} $ be two objects with the same type $ T $ . Let their automata $ \mathcal{A}_{o_{1}^{T}} $ and $ \mathcal{A}_{o_{2}^{T}} $ be built as shown in Figure 4. $ o*{1}^{T} $ and $ o*{2}^{T} $ are type-consistent if, for every input w in $ \Sigma^{\*} $ , (1) $ \beta*{\mathcal{A}*{o*{1}^{T}}}(w)=\beta*{\mathcal{A}_{o_{2}^{T}}}(w) $ (Condition 1 of Definition 2.1) and (2) $ |\beta*{\mathcal{A}*{o\_{1}^{T}}}(w)|=1 $ (Condition 2 of Definition 2.1).
 
-Therefore, we have reduced the problem of checking the type-consistency of $ o_{1}^{T} $ and $ o_{2}^{T} $ to one of testing the equivalence of their corresponding automata $ \mathcal{A}_{o_{1}^{T}} $ and $ \mathcal{A}_{o_{2}^{T}} $ , which is solvable by the Hopcroft-Karp algorithm [18] with minor modifications. The worst-case time complexity is $ O(|\Sigma| \times|Q_{\mathrm{larger}}|) $ , which is almost linear in terms of $ |Q_{\mathrm{larger}}| $ , where $ Q_{\mathrm{larger}} $ is the set of states of the larger automaton [18].
+Therefore, we have reduced the problem of checking the type-consistency of $ o*{1}^{T} $ and $ o*{2}^{T} $ to one of testing the equivalence of their corresponding automata $ \mathcal{A}_{o_{1}^{T}} $ and $ \mathcal{A}_{o_{2}^{T}} $ , which is solvable by the Hopcroft-Karp algorithm [18] with minor modifications. The worst-case time complexity is $ O(|\Sigma| \times|Q*{\mathrm{larger}}|) $ , which is almost linear in terms of $ |Q*{\mathrm{larger}}| $ , where $ Q\_{\mathrm{larger}} $ is the set of states of the larger automaton [18].
 
-Example 2.6. Continuing from Example 2.5, we see easily that $ o_{1}^{T} $ and $ o_{2}^{T} $ are type-consistent (Figure 2) since their corresponding automata $ \mathcal{A}_{o_{1}^{T}} $ and $ \mathcal{A}_{o_{2}^{T}} $ are equivalent.
+Example 2.6. Continuing from Example 2.5, we see easily that $ o*{1}^{T} $ and $ o*{2}^{T} $ are type-consistent (Figure 2) since their corresponding automata $ \mathcal{A}_{o_{1}^{T}} $ and $ \mathcal{A}_{o_{2}^{T}} $ are equivalent.
 
 ## 3. MAHJONG
 
@@ -210,7 +210,7 @@ We first give an overview of MAHJONG that consists of four components (Section 3
 
 As shown in Figure 5, MAHJONG takes the field points-to graph (FPG) computed by a pre-analysis (Section 2.2.1) as input and builds a heap abstraction (Definition 2.2) to be used by a subsequent points-to analysis. The pre-analysis is fast but imprecise, by using Andersen's algorithm [4] with the allocation-site abstraction, context-insensitively. The subsequent points-to analysis will be more precise, usually performed context-sensitively, especially for object-oriented programs, based on the MAHJONG heap abstraction.
 
-MAHJONG iteratively picks a pair of objects $ o_{i}^{T} $ and $ o_{j}^{T} $ with the same type T and merges them if they are type-consistent, until no such pair can be found. Given $ o_{i}^{T} $ and $ o_{j}^{T} $ their corresponding NFAs, $ NFA_{o_{i}^{T}} $ and $ NFA_{o_{j}^{T}} $ , are first built by using the NFA Builder. Then the two NFAs are converted into their equivalent DFAs, $ DFA_{o_{i}^{T}} $ and $ DFA_{o_{j}^{T}} $ , by using the DFA Converter. Next, the Automata Equivalence Checker determines whether $ DFA_{o_{i}^{T}} $ and $ DFA_{o_{j}^{T}} $ are equivalent or not Finally, the Heap Modeler outputs a new heap abstraction.
+MAHJONG iteratively picks a pair of objects $ o*{i}^{T} $ and $ o*{j}^{T} $ with the same type T and merges them if they are type-consistent, until no such pair can be found. Given $ o*{i}^{T} $ and $ o*{j}^{T} $ their corresponding NFAs, $ NFA*{o*{i}^{T}} $ and $ NFA*{o*{j}^{T}} $ , are first built by using the NFA Builder. Then the two NFAs are converted into their equivalent DFAs, $ DFA*{o*{i}^{T}} $ and $ DFA*{o*{j}^{T}} $ , by using the DFA Converter. Next, the Automata Equivalence Checker determines whether $ DFA*{o*{i}^{T}} $ and $ DFA*{o*{j}^{T}} $ are equivalent or not Finally, the Heap Modeler outputs a new heap abstraction.
 
 The detailed algorithms are given in Section 4.
 
@@ -226,7 +226,7 @@ Figure 5. Overview of MAHJONG.
 
 </div>
 
-($ Q, \Sigma, \delta, q_{0}, \Gamma, \gamma $ ) according to the mapping, as shown in Figure 4. In fact, $ \mathcal{A}_{o} $ can be immediately read off from $ \mathcal{G}_{o}. $
+($ Q, \Sigma, \delta, q*{0}, \Gamma, \gamma $ ) according to the mapping, as shown in Figure 4. In fact, $ \mathcal{A}*{o} $ can be immediately read off from $ \mathcal{G}\_{o}. $
 
 ## 3.3 The DFA Converter
 
@@ -238,9 +238,9 @@ The Automata Equivalence Checker tests the equivalence of two DFAs by applying a
 
 ## 3.5 The Heap Modeler
 
-After all type-consistent objects have been found, the type-consistency equivalence relation $ \equiv $ given in Definition 2.1 becomes fully constructed. By Definition 2.2, the new heap abstraction found is simply given by $ \mathbb{H} / \equiv $ . For every equivalent class $ [o_{i}^{T}] \in \mathbb{H} / \equiv $ , a representative object $ o_{j}^{T} $ is arbitrarily picked to substitute for the other objects in the class. Essentially, the allocation sites for all objects in $ [o_{i}^{T}] $ are merged and represented by the allocation site of $ o_{j}^{T} $ only.
+After all type-consistent objects have been found, the type-consistency equivalence relation $ \equiv $ given in Definition 2.1 becomes fully constructed. By Definition 2.2, the new heap abstraction found is simply given by $ \mathbb{H} / \equiv $ . For every equivalent class $ [o_{i}^{T}] \in \mathbb{H} / \equiv $ , a representative object $ o*{j}^{T} $ is arbitrarily picked to substitute for the other objects in the class. Essentially, the allocation sites for all objects in $ [o*{i}^{T}] $ are merged and represented by the allocation site of $ o\_{j}^{T} $ only.
 
-To enable a points-to analysis to use our new heap abstraction, we only need to change its rule for handling allocation sites. Given i : x = new T() in a Java program, where $ o_{j}^{T} $ is a representative for $ [ o_{i}^{T} ] $ , x is made to point to $ o_{j}^{T}. $
+To enable a points-to analysis to use our new heap abstraction, we only need to change its rule for handling allocation sites. Given i : x = new T() in a Java program, where $ o*{j}^{T} $ is a representative for $ [ o*{i}^{T} ] $ , x is made to point to $ o\_{j}^{T}. $
 
 ## 3.6 MAHJONG-based Points-To Analysis
 
@@ -252,13 +252,13 @@ In a context-sensitive points-to analysis, local variables are analyzed context-
 
 We obtain M-A from $ \mathcal{A} $ by first replacing $ \mathcal{A} $ 's allocation-site abstraction with the MAHJONG heap abstraction. We then need to make minor modifications to $ \mathcal{A} $ to enable M-A to handle merged objects effectively.
 
-Regardless of whether $ \mathcal{A} $ is call-site-, object- or typesensitive, M- $ \mathcal{A} $ will always model a merged object o contextinsensitively. There would be otherwise of little benefit in modeling o context-sensitively, since the objects accessed by $ o.f_{1}.f_{2}.\dots.f_{n} $ for any $ f_{1}.f_{2}.\dots.f_{n} $ under different contexts are expected to have the same type, in practice. Below we discuss how the calling contexts for methods are modified, if needed, when they are related to merged objects.
+Regardless of whether $ \mathcal{A} $ is call-site-, object- or typesensitive, M- $ \mathcal{A} $ will always model a merged object o contextinsensitively. There would be otherwise of little benefit in modeling o context-sensitively, since the objects accessed by $ o.f*{1}.f*{2}.\dots.f*{n} $ for any $ f*{1}.f*{2}.\dots.f*{n} $ under different contexts are expected to have the same type, in practice. Below we discuss how the calling contexts for methods are modified, if needed, when they are related to merged objects.
 
 Call-Site-Sensitivity A k-call-site-sensitive points-to analysis, i.e., a k-CFA [37] separates information on local variables per call-stack (i.e., sequence of k call-sites) of method invocations that lead to the current method. By convention, a sequence of k-1 call-sites is used as a calling context for an allocation site [20, 39, 48].
 
 If $ \mathcal{A} $ is k-call-site-sensitive [37], then M- $ \mathcal{A} $ behaves identically as $ \mathcal{A} $ in handling methods. For the reason mentioned above, M- $ \mathcal{A} $ models the merged objects context-insensitively but everything else context-sensitively as in $ \mathcal{A} $
 
-Object-Sensitivity $ k $ - object-sensitivity is similar to $ k $ - callsite-sensitivity except that allocation sites rather than call sites are used as context elements [29]. Let $ o_{i} $ be an abstract object identified by its allocation site $ i $ . In $ k $ - object-sensitivity, the object $ o_{i} $ at allocation site $ i $ is modeled context-sensitively by a calling context $ [o_{i_{k-1}},\dots,o_{i_{1}}] $ (of length $ k-1 $ ), where $ i_{j} $ is the allocation site for the receiver object $ o_{i_{j}} $ of the method that contains $ i_{j-1} $ (with $ i_{0}=i $ ). If $ x $ points to an object $ o_{i} $ modeled under a context $ [o_{i_{k-1}},\dots,o_{i_{1}}] $ , then the $ k $ - object-sensitive calling context used for analyzing a callee of a method call $ x.foo() $ is $ [o_{i_{k-1}},\dots,o_{i_{1}},o_{i}] $ .
+Object-Sensitivity $ k $ - object-sensitivity is similar to $ k $ - callsite-sensitivity except that allocation sites rather than call sites are used as context elements [29]. Let $ o*{i} $ be an abstract object identified by its allocation site $ i $ . In $ k $ - object-sensitivity, the object $ o*{i} $ at allocation site $ i $ is modeled context-sensitively by a calling context $ [o_{i_{k-1}},\dots,o_{i_{1}}] $ (of length $ k-1 $ ), where $ i*{j} $ is the allocation site for the receiver object $ o*{i*{j}} $ of the method that contains $ i*{j-1} $ (with $ i*{0}=i $ ). If $ x $ points to an object $ o*{i} $ modeled under a context $ [o_{i_{k-1}},\dots,o_{i_{1}}] $ , then the $ k $ - object-sensitive calling context used for analyzing a callee of a method call $ x.foo() $ is $ [o_{i_{k-1}},\dots,o_{i_{1}},o_{i}] $ .
 
 If $ \mathcal{A} $ is a k-object-sensitive points-to analysis, M- $ \mathcal{A} $ models merged objects context-insensitively, i.e., object-insensitively but everything else objective-sensitively as in $ \mathcal{A} $ . As a result, calling contexts that contain merged objects
 
@@ -276,7 +276,7 @@ We discuss some insights below on why merging type-consistent objects enables M-
 
 We first describe a rarely occurring subtle case, the nullfield problem, illustrated in Figure 6, due to the imprecision of the pre-analysis, causing precision loss for all the three types of MAHJONG-based context-sensitivity.
 
-Example 3.1. Suppose $ o_{i}^{T}.f $ and $ o_{j}^{T}.f $ both point to $ o_{1}^{X} $ during the pre-analysis (Figure 6(a)) but $ o_{1}^{X} $ and null, respectively, in $ \mathcal{A} $ (Figure 6(b)). In M- $ \mathcal{A} $ , $ o_{i}^{T} $ and $ o_{j}^{T} $ are type-consistent and thus merged into $ o_{k}^{T} $ (represented by either $ o_{i}^{T} $ or $ o_{j}^{T} $ ), M- $ \mathcal{A} $ is less precise, as $ o_{j}^{T}.f $ , which points to null in $ \mathcal{A} $ , now points to an object of type X (Figure 6(c)).
+Example 3.1. Suppose $ o*{i}^{T}.f $ and $ o*{j}^{T}.f $ both point to $ o*{1}^{X} $ during the pre-analysis (Figure 6(a)) but $ o*{1}^{X} $ and null, respectively, in $ \mathcal{A} $ (Figure 6(b)). In M- $ \mathcal{A} $ , $ o*{i}^{T} $ and $ o*{j}^{T} $ are type-consistent and thus merged into $ o*{k}^{T} $ (represented by either $ o*{i}^{T} $ or $ o*{j}^{T} $ ), M- $ \mathcal{A} $ is less precise, as $ o*{j}^{T}.f $ , which points to null in $ \mathcal{A} $ , now points to an object of type X (Figure 6(c)).
 
 <div style='text-align: center;'><img src='assets/EK3N4IGF-fig-005.png' alt='OCR图片'/></div>
 
@@ -292,7 +292,7 @@ If $ \mathcal{A} $ is object-sensitive, then $ M-\mathcal{A} $ is no more precis
 
 hurts the precision, making M-A nearly as precise as A for type-dependent clients, in practice. The key insight behind object-sensitivity [29] is to distinguish the side-effects of different receiver objects of an instance method foo() by analyzing it under multiple calling contexts, one per receiver object. By merging a set of type-consistent receiver objects for foo(), we end up achieving a significant performance benefit at little precision loss by analyzing foo() under the same context by M-A rather than separately but unnecessarily by A for these receiver objects. For type-dependent clients, this represents a generalization of object-sensitivity.
 
-If $ \mathcal{A} $ is type-sensitive, then M-A is nearly as precise as (sometimes slightly better or worse than) $ \mathcal{A} $ for type-dependent clients, in practice. Consider an equivalence class $ [o]=\{o_{1},\ldots,o_{n}\}\in \mathbb{H}/\equiv $ (Definition 2.2) formed by the MAHJONG heap abstraction. In $ \mathcal{A} $ , every $ o_{i} $ that is used as a context element in a calling context is replaced by the class type that contains the allocation site for $ o_{i} $ . In M-A, $ o_{1},\ldots,o_{n} $ are merged and replaced by the class type that contains the allocation site for a representative in $ [o] $ . Thus, the MAHJONG heap abstraction can be coarser than the allocation-site abstraction for some methods and finer for some others in partitioning their calling contexts, which depends on the representatives chosen.
+If $ \mathcal{A} $ is type-sensitive, then M-A is nearly as precise as (sometimes slightly better or worse than) $ \mathcal{A} $ for type-dependent clients, in practice. Consider an equivalence class $ [o]=\{o*{1},\ldots,o*{n}\}\in \mathbb{H}/\equiv $ (Definition 2.2) formed by the MAHJONG heap abstraction. In $ \mathcal{A} $ , every $ o*{i} $ that is used as a context element in a calling context is replaced by the class type that contains the allocation site for $ o*{i} $ . In M-A, $ o*{1},\ldots,o*{n} $ are merged and replaced by the class type that contains the allocation site for a representative in $ [o] $ . Thus, the MAHJONG heap abstraction can be coarser than the allocation-site abstraction for some methods and finer for some others in partitioning their calling contexts, which depends on the representatives chosen.
 
 <div style='text-align: center;'><img src='assets/EK3N4IGF-fig-006.png' alt='OCR图片'/></div>
 
@@ -304,9 +304,9 @@ Figure 7. Precision of M-ktype over ktype.
 
 Let us see how the choice of representative for an equivalence class affects the precision of M-ktype.
 
-Example 3.2. In Figure 7, ktype (k-type-sensitive analysis) will represent the allocation sites 1 and 2 by T. Thus, the two allocation sites that are distinguished by kobj (k-object-sensitive analysis) are merged. According to MAHJONG, $ o_{1}^{A} $ and $ o_{3}^{A} $ are type-consistent, falling into the same equivalence class. If $ o_{3}^{A} $ happens to be selected as a representative, then M-ktype will be able to distinguish the allocation sites 1 and 2 by U and T, respectively. However, if $ o_{1}^{A} $ is selected as the representative (not shown in Figure 7), then M-ktype will merge the allocation sites 1, 2 and 3 by using T as the context, and become less precise than ktype.
+Example 3.2. In Figure 7, ktype (k-type-sensitive analysis) will represent the allocation sites 1 and 2 by T. Thus, the two allocation sites that are distinguished by kobj (k-object-sensitive analysis) are merged. According to MAHJONG, $ o*{1}^{A} $ and $ o*{3}^{A} $ are type-consistent, falling into the same equivalence class. If $ o*{3}^{A} $ happens to be selected as a representative, then M-ktype will be able to distinguish the allocation sites 1 and 2 by U and T, respectively. However, if $ o*{1}^{A} $ is selected as the representative (not shown in Figure 7), then M-ktype will merge the allocation sites 1, 2 and 3 by using T as the context, and become less precise than ktype.
 
-However, the choice of representative for an equivalence class $ [o]=\{o_{1},\ldots,o_{n}\}\in \mathbb{H}/\equiv $ does not affect the soundness of M-ktype. Regardless of what object is selected, replacing $ o_{i} $ in a context used in the corresponding kobj by the containing type of a representative in $ [o] $ in M-ktype always yields a context abstraction that is either identical or coarser, by the definition of type-sensitivity [39].
+However, the choice of representative for an equivalence class $ [o]=\{o*{1},\ldots,o*{n}\}\in \mathbb{H}/\equiv $ does not affect the soundness of M-ktype. Regardless of what object is selected, replacing $ o\_{i} $ in a context used in the corresponding kobj by the containing type of a representative in $ [o] $ in M-ktype always yields a context abstraction that is either identical or coarser, by the definition of type-sensitivity [39].
 
 ## 4. Algorithms
 
@@ -316,7 +316,7 @@ We present the algorithms used in MAHJONG. In Section 4.1, we give some domains 
 
 For a program, we use the three domains: (1) $ \mathbb{H} $ is the set of all abstract heap objects (i.e., allocation sites), (2) $ \mathbb{F} $ is the set of all field names, and (3) $ \mathbb{T} $ is the set of all types. Note that we have used $ \mathbb{H} $ earlier in Definition 2.2.
 
-Now, we can formally define the input and output of MAHJONG. MAHJONG takes a field points-to graph, FPG = (N, E), which is a directed weighted graph, as input. A node $ o_{i}\in \mathbb{N}=\mathbb{H} $ represents a heap object in the program. An edge $ (o_{i},f,o_{j})\in \mathsf{E}\subseteq \mathbb{N}\times \mathbb{F}\times \mathbb{N} $ indicates that $ o_{i}.f $ points to $ o_{j} $ . We assume that the FPG contains a dummy node $ o_{\mathrm{null}} $ to represent null. If $ o_{i}.f=\mathrm{null} $ , then $ (o_{i},f,o_{\mathrm{null}})\in \mathsf{E} $ . We also assume $ (o_{\mathrm{null}},f,o_{\mathrm{null}})\in \mathsf{E} $ for every field $ f\in \mathbb{F}. $
+Now, we can formally define the input and output of MAHJONG. MAHJONG takes a field points-to graph, FPG = (N, E), which is a directed weighted graph, as input. A node $ o*{i}\in \mathbb{N}=\mathbb{H} $ represents a heap object in the program. An edge $ (o*{i},f,o*{j})\in \mathsf{E}\subseteq \mathbb{N}\times \mathbb{F}\times \mathbb{N} $ indicates that $ o*{i}.f $ points to $ o*{j} $ . We assume that the FPG contains a dummy node $ o*{\mathrm{null}} $ to represent null. If $ o*{i}.f=\mathrm{null} $ , then $ (o*{i},f,o*{\mathrm{null}})\in \mathsf{E} $ . We also assume $ (o*{\mathrm{null}},f,o\_{\mathrm{null}})\in \mathsf{E} $ for every field $ f\in \mathbb{F}. $
 
 The output of MAHJONG is a new heap abstraction, represented by a merged object map, MOM $ \subseteq $ $ \mathbb{H} $ $ \rightarrow $ $ \mathbb{H} $ , which relates an object in an equivalence class in $ \mathbb{H} $ $ / $ $ \equiv $ to its representative object (as described in Section 3.5).
 
@@ -360,17 +360,17 @@ Output: MOM (Merged Object Map)
 
 17 return MOM
 
-Algorithm 1 gives the main algorithm. To facilitate merging type-consistent objects, we make use of the concept of disjoint sets [11]. In a set S of disjoint sets, each disjoint set is identified by a representative, which is some member of the disjoint set. We make use of two classic operations over disjoint sets, UNION and FIND. S.UNION(x, y) unites the disjoint sets in S that contain x and y, say $ S_{x} $ and $ S_{y} $ , into a new disjoint set that is the union of the two, adds it to S, and destroys $ S_{x} $ and $ S_{y} $ in S. The representative of the re-
+Algorithm 1 gives the main algorithm. To facilitate merging type-consistent objects, we make use of the concept of disjoint sets [11]. In a set S of disjoint sets, each disjoint set is identified by a representative, which is some member of the disjoint set. We make use of two classic operations over disjoint sets, UNION and FIND. S.UNION(x, y) unites the disjoint sets in S that contain x and y, say $ S*{x} $ and $ S*{y} $ , into a new disjoint set that is the union of the two, adds it to S, and destroys $ S*{x} $ and $ S*{y} $ in S. The representative of the re-
 
 $$
 S _ {x} \cup S _ {y}. S. \mathrm {F I N D} (x)
 $$
 
-MAHJONG first initializes W by adding to it a singleton set for each object (lines 1-3). Then it iterates over every pair of objects, $ o_{i} $ and $ o_{j} $ in $ \mathbb{H} $ , that are not yet merged, and merges the pair if both are type-consistent (lines 4-13). According to line 5, $ o_{i} $ and $ o_{j} $ are mergeable only if both have the same type. The function TYPEOF : $ \mathbb{H} \rightarrow \mathbb{T} $ returns the type of a given object and a special type for $ o_{\mathrm{null}}. $
+MAHJONG first initializes W by adding to it a singleton set for each object (lines 1-3). Then it iterates over every pair of objects, $ o*{i} $ and $ o*{j} $ in $ \mathbb{H} $ , that are not yet merged, and merges the pair if both are type-consistent (lines 4-13). According to line 5, $ o*{i} $ and $ o*{j} $ are mergeable only if both have the same type. The function TYPEOF : $ \mathbb{H} \rightarrow \mathbb{T} $ returns the type of a given object and a special type for $ o\_{\mathrm{null}}. $
 
-To check the type consistency of $ o_{i} $ and $ o_{j} $ by Definition 2.1 efficiently, we handle its two conditions separately, with Condition 2 in lines 6-7 and Condition 1 in lines 8 12. In lines 6-7, the function SINGLETYPE-CHECK : $ \mathbb{H}\times \mathrm{FPG}\rightarrow \{\mathrm{TRUE},\mathrm{FALSE}\} $ is applied to see if Condition 2 holds for both $ o_{i} $ and $ o_{j} $ . If so, MAHJONG then proceeds to build the NFAs for the two objects (Section 4.2), convert the NFAs to their equivalent DFAs (Section 4.3), and finally, test their equivalence (Section 4.4). If the two DFAs are equivalent, then MAHJONG calls W.UNION( $ o_{i},o_{j} $ ) to merge $ o_{i} $ and $ o_{j} $ at line 13. Finally, in lines 14-16, MAHJONG builds a new heap abstraction as desired (Section 4.5).
+To check the type consistency of $ o*{i} $ and $ o*{j} $ by Definition 2.1 efficiently, we handle its two conditions separately, with Condition 2 in lines 6-7 and Condition 1 in lines 8 12. In lines 6-7, the function SINGLETYPE-CHECK : $ \mathbb{H}\times \mathrm{FPG}\rightarrow \{\mathrm{TRUE},\mathrm{FALSE}\} $ is applied to see if Condition 2 holds for both $ o*{i} $ and $ o*{j} $ . If so, MAHJONG then proceeds to build the NFAs for the two objects (Section 4.2), convert the NFAs to their equivalent DFAs (Section 4.3), and finally, test their equivalence (Section 4.4). If the two DFAs are equivalent, then MAHJONG calls W.UNION( $ o*{i},o*{j} $ ) to merge $ o*{i} $ and $ o*{j} $ at line 13. Finally, in lines 14-16, MAHJONG builds a new heap abstraction as desired (Section 4.5).
 
-Given an object o, Algorithm 2 (NFA-BUILDER) builds an NFA, $ \mathcal{A}_{o}=(Q,\Sigma,\delta,q_{0},\Gamma,\gamma) $ , according to the mapping from the field points-to graph rooted at o to $ \mathcal{A}_{o} $ in Figure 4.
+Given an object o, Algorithm 2 (NFA-BUILDER) builds an NFA, $ \mathcal{A}_{o}=(Q,\Sigma,\delta,q_{0},\Gamma,\gamma) $ , according to the mapping from the field points-to graph rooted at o to $ \mathcal{A}\_{o} $ in Figure 4.
 
 ## 4.2 The NFA Builder
 
@@ -380,9 +380,9 @@ Input : $ \circ $ (Input object)
 
 FPG = (N, E) (Field Points-to Graph)
 
-Output: $ \mathrm{NFA}=\left(Q,\Sigma,\delta,q_{0},\Gamma,\gamma\right) $
+Output: $ \mathrm{NFA}=\left(Q,\Sigma,\delta,q\_{0},\Gamma,\gamma\right) $
 
-1 $ q_{0}=\circ $
+1 $ q\_{0}=\circ $
 
 2 Let $ Q $ be a set of objects reachable from $ \circ $ in FPG
 
@@ -390,21 +390,21 @@ Output: $ \mathrm{NFA}=\left(Q,\Sigma,\delta,q_{0},\Gamma,\gamma\right) $
 
 4 Let $ \gamma $ and $ \delta $ be two new maps
 
-5 foreach $ o_{i}\in Q $ do
+5 foreach $ o\_{i}\in Q $ do
 
-6 $ \left\{\begin{array}{l} \Sigma=\Sigma\cup\mathrm{FIELDSOF}(o_{i}) \\ \Gamma=\Gamma\cup\left\{\mathrm{TYPEOF}(o_{i})\right\} \\ \gamma[o_{i}]\mathrm{=TYPEOF}(o_{i}) \end{array}\right. $
+6 $ \left\{\begin{array}{l} \Sigma=\Sigma\cup\mathrm{FIELDSOF}(o*{i}) \\ \Gamma=\Gamma\cup\left\{\mathrm{TYPEOF}(o*{i})\right\} \\ \gamma[o_{i}]\mathrm{=TYPEOF}(o\_{i}) \end{array}\right. $
 
 7
 
 8
 
-9 foreach $ \left(o_{i},f,o_{j}\right)\in E $ do
+9 foreach $ \left(o*{i},f,o*{j}\right)\in E $ do
 
-10 if $ o_{i}\in Q $ then
+10 if $ o\_{i}\in Q $ then
 
-11 Add $ o_{j} $ to $ \delta[o_{i},f] $
+11 Add $ o*{j} $ to $ \delta[o*{i},f] $
 
-12 return $ \mathrm{NFA}=\left(Q,\Sigma,\delta,q_{0},\Gamma,\gamma\right) $
+12 return $ \mathrm{NFA}=\left(Q,\Sigma,\delta,q\_{0},\Gamma,\gamma\right) $
 
 NFA-BUILDER constructs all the six components for $ \mathcal{A}_{o} $ Its initial state $ q_{0} $ is simply o (line 1). Q is the set of objects reachable from o in FPG (line 2). The objects in Q are iterated over to build $ \Sigma $ (set of input symbols), $ \Gamma $ (set of output symbols), and $ \gamma $ (output map) at lines 5-8. The function FIELDSOF : $ \mathbb{H}\rightarrow \mathcal{P}(\mathbb{F}) $ returns the fields of a given object. Finally, the relevant edges in FPG are traversed to build the state transition map $ \delta $ (lines 9-11).
 
@@ -416,11 +416,11 @@ There are three minor differences. First, we do not need to handle (non-existent
 
 Algorithm 3: DFA-CONVERTER
 
-Input : NFA = (Q, $ \Sigma $ , $ \delta $ , $ q_{0} $ , $ \Gamma $ , $ \gamma $ )
+Input : NFA = (Q, $ \Sigma $ , $ \delta $ , $ q\_{0} $ , $ \Gamma $ , $ \gamma $ )
 
-Output: DFA = ( $ Q^{\prime} $ , $ \Sigma^{\prime} $ , $ \delta^{\prime} $ , $ q_{0}^{\prime} $ , $ \Gamma^{\prime} $ , $ \gamma^{\prime} $ )
+Output: DFA = ( $ Q^{\prime} $ , $ \Sigma^{\prime} $ , $ \delta^{\prime} $ , $ q\_{0}^{\prime} $ , $ \Gamma^{\prime} $ , $ \gamma^{\prime} $ )
 
-$ q_{0}^{\prime} $ = { $ q_{0} $ }
+$ q*{0}^{\prime} $ = { $ q*{0} $ }
 
 $ \Sigma^{\prime} $ = $ \Sigma $
 
@@ -428,17 +428,17 @@ Let $ Q^{\prime} $ and $ \Gamma^{\prime} $ be two new sets
 
 Let $ \delta^{\prime} $ and $ \gamma^{\prime} $ be two new maps
 
-Add $ q_{0}^{\prime} $ as an unmarked state to $ Q^{\prime} $
+Add $ q\_{0}^{\prime} $ as an unmarked state to $ Q^{\prime} $
 
 while there is an unmarked state $ q \in Q^{\prime} $ do
 
 Mark $ q $
 
-Pick any $ o_{i} $ from $ q $
+Pick any $ o\_{i} $ from $ q $
 
-foreach $ f \in $ FIELDSOF( $ o_{i} $ ) do
+foreach $ f \in $ FIELDSOF( $ o\_{i} $ ) do
 
-$ q^{\prime} $ = { $ \delta[o_{j}, f] $ | $ o_{j} \in q $ }
+$ q^{\prime} $ = { $ \delta[o_{j}, f] $ | $ o\_{j} \in q $ }
 
 if $ q^{\prime} $ $ \notin $ $ Q^{\prime} $ then
 
@@ -448,17 +448,17 @@ $ \delta^{\prime}[q, f] $ = $ q^{\prime} $
 
 foreach $ q \in Q^{\prime} $ do
 
-$ \gamma^{\prime}[q] $ = { $ \mathrm{TYPEOF}(o_{i}) $ | $ o_{i} \in q $ }
+$ \gamma^{\prime}[q] $ = { $ \mathrm{TYPEOF}(o*{i}) $ | $ o*{i} \in q $ }
 
 $ \Gamma^{\prime} $ = $ \Gamma^{\prime} $ $ \cup $ $ \gamma^{\prime}[q] $
 
-return DFA = ( $ Q^{\prime} $ , $ \Sigma^{\prime} $ , $ \delta^{\prime} $ , $ q_{0}^{\prime} $ , $ \Gamma^{\prime} $ , $ \gamma^{\prime} $ )
+return DFA = ( $ Q^{\prime} $ , $ \Sigma^{\prime} $ , $ \delta^{\prime} $ , $ q\_{0}^{\prime} $ , $ \Gamma^{\prime} $ , $ \gamma^{\prime} $ )
 
 Algorithm 4 (EQUIV-CHECKER) tests the equivalence of two 6-tuple DFAs, by applying a Hopcroft-Karp algorithm that was proposed for two 5-tuple DFAs [18] with minor modifications at line 19 on testing whether all states in $ s\in V $ have the same type. As discussed in Section 2.2.2, a 5-tuple DFA can be modeled as a special case of a 6-tuple DFA.
 
 ## 4.4 The Automata Equivalence Checker
 
-EQUIV-CHECKER iterates over all fields $ f\in\Sigma $ (line 14) and queries the transition map $ \delta $ to obtain the next states (line 15). By convention, if $ \delta[q,f] $ is not defined, since the objects in q do not have the field f, we assume that $ \delta[q,f] = q_{\mathrm{error}}. $ In addition, $ \gamma[q_{\mathrm{error}}] $ returns a special type for $ q_{\mathrm{error}}. $
+EQUIV-CHECKER iterates over all fields $ f\in\Sigma $ (line 14) and queries the transition map $ \delta $ to obtain the next states (line 15). By convention, if $ \delta[q,f] $ is not defined, since the objects in q do not have the field f, we assume that $ \delta[q,f] = q*{\mathrm{error}}. $ In addition, $ \gamma[q*{\mathrm{error}}] $ returns a special type for $ q\_{\mathrm{error}}. $
 
 ## 4.5 The Heap Modeler
 
@@ -470,23 +470,23 @@ We have implemented MAHJONG as a standalone tool in a total of only 1500 LOC in 
 
 Algorithm 4: EQUIV-CHECKER
 
-Input : $ \mathrm{DFA}_{1}=\left(Q_{1},\Sigma_{1},\delta_{1},q_{1},\Gamma_{1},\gamma_{1}\right) $
+Input : $ \mathrm{DFA}_{1}=\left(Q_{1},\Sigma*{1},\delta*{1},q*{1},\Gamma*{1},\gamma\_{1}\right) $
 
-$ \mathrm{DFA}_{2}=\left(Q_{2},\Sigma_{2},\delta_{2},q_{2},\Gamma_{2},\gamma_{2}\right) $
+$ \mathrm{DFA}_{2}=\left(Q_{2},\Sigma*{2},\delta*{2},q*{2},\Gamma*{2},\gamma\_{2}\right) $
 
 Output: TRUE or FALSE (Are $ \mathrm{DFA}_{1} $ and $ \mathrm{DFA}_{2} $ equivalent?)
 
-$ Q=Q_{1}\cup Q_{2} $
+$ Q=Q*{1}\cup Q*{2} $
 
-$ \Sigma=\Sigma_{1}\cup\Sigma_{2} $
+$ \Sigma=\Sigma*{1}\cup\Sigma*{2} $
 
-$ \delta[q,f]=\left\{\begin{array}{ll}\delta_{1}[q,f]&\mathrm{if} q\in Q_{1}\\ \delta_{2}[q,f]&\mathrm{if} q\in Q_{2}\end{array}\right. $
+$ \delta[q,f]=\left\{\begin{array}{ll}\delta*{1}[q,f]&\mathrm{if} q\in Q*{1}\\ \delta*{2}[q,f]&\mathrm{if} q\in Q*{2}\end{array}\right. $
 
-$ \Gamma=\Gamma_{1}\cup\Gamma_{2} $
+$ \Gamma=\Gamma*{1}\cup\Gamma*{2} $
 
-$ \gamma[q]=\left\{\begin{array}{ll}\gamma_{1}[q]&\mathrm{if} q\in Q_{1}\\ \gamma_{2}[q]&\mathrm{if} q\in Q_{2}\end{array}\right. $
+$ \gamma[q]=\left\{\begin{array}{ll}\gamma*{1}[q]&\mathrm{if} q\in Q*{1}\\ \gamma*{2}[q]&\mathrm{if} q\in Q*{2}\end{array}\right. $
 
-$ \mathrm{DFA}=\left(Q,\Sigma,\delta,q_{1},\Gamma,\gamma\right) $
+$ \mathrm{DFA}=\left(Q,\Sigma,\delta,q\_{1},\Gamma,\gamma\right) $
 
 Let $ V $ be a new set
 
@@ -494,23 +494,23 @@ foreach $ q\in Q $ do
 
 Add $ \{q\} $ to $ V $
 
-$ V.\mathrm{UNION}(q_{1},q_{2}) $
+$ V.\mathrm{UNION}(q*{1},q*{2}) $
 
-Push $ \left(q_{1},q_{2}\right) $ to a new stack, STACK
+Push $ \left(q*{1},q*{2}\right) $ to a new stack, STACK
 
 while STACK is not empty do
 
-Pop $ \left(p_{1},p_{2}\right) $ from STACK
+Pop $ \left(p*{1},p*{2}\right) $ from STACK
 
 foreach $ f\in\Sigma $ do
 
-$ r_{1}=\mathrm{V.FIND}(\delta\left[p_{1},f\right]),r_{2}=\mathrm{V.FIND}(\delta\left[p_{2},f\right]) $
+$ r*{1}=\mathrm{V.FIND}(\delta\left[p*{1},f\right]),r*{2}=\mathrm{V.FIND}(\delta\left[p*{2},f\right]) $
 
-if $ r_{1}\neq r_{2} $ then
+if $ r*{1}\neq r*{2} $ then
 
-$ \mathrm{V.UNION}(r_{1},r_{2}) $
+$ \mathrm{V.UNION}(r*{1},r*{2}) $
 
-Push $ \left(r_{1},r_{2}\right) $ to STACK
+Push $ \left(r*{1},r*{2}\right) $ to STACK
 
 return {TRUE if $ \forall s\in V:\forall p,q\in s:\gamma[p]=\gamma[q] $ FALSE otherwise
 

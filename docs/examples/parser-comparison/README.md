@@ -15,7 +15,7 @@ These files are examples, not strict benchmarks. Parsing quality depends on the 
 
 ## How to Read
 
-Open the source PDF first, pick several structurally complex paragraphs, formulas, tables, or figures, then compare the same locations across the three  `result.md` files.
+Open the source PDF first, pick several structurally complex paragraphs, formulas, tables, or figures, then compare the same locations across the three `result.md` files.
 
 ## Parser Outputs
 

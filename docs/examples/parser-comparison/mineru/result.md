@@ -93,6 +93,7 @@ graph TD
   O8 -->|h| O11
     end
 ```
+
 </details>
 
 Figure 2. Field points-to graph rooted at $o _ { 1 } ^ { T }$ and $o _ { 2 } ^ { T }$ .
@@ -142,6 +143,7 @@ graph TD
   D -->|f| E["O_1^X"]
   D -->|f| F["O_2^Y"]
 ```
+
 </details>
 
 ![](assets/EK3N4IGF-fig-003.jpg)
@@ -160,6 +162,7 @@ graph TD
   C2["O_2^Y"] -->|f| D2["O_2^Y"]
     end
 ```
+
 </details>
 
 Figure 3. Illustrating Condition 2 in Definition 2.1.
@@ -234,6 +237,7 @@ graph TD
   C -->|NFA_Oi^T| C
   D -->|DFA_Oi^T| D
 ```
+
 </details>
 
 Figure 5. Overview of MAHJONG.
@@ -316,6 +320,7 @@ graph TD
     style F fill:#f9f,stroke:#333
     style G fill:#ccf,stroke:#333
 ```
+
 </details>
 
 Figure 7. Precision of M-ktype over ktype.
@@ -344,20 +349,20 @@ Output: MOM (Merged Object Map)
 
 1 Let W be a new set
 2 foreach o ∈ H do
-3    Add {o} to W
+3 Add {o} to W
 4 foreach o_i, o_j ∈ H s.t. W.FIND(o_i) ≠ W.FIND(o_j) do
-5    if TYPEOF(o_i) == TYPEOF(o_j) and
-6    SINGLETYPE-CHECK(o_i, FPG) and
-7    SINGLETYPE-CHECK(o_j, FPG) then
-8    NFAo_i = NFA-BUILDER(o_i, FPG)
-9    NFAo_j = NFA-BUILDER(o_j, FPG)
-10    DFAo_i = DFA-CONVERTER(NFAo_i)
-11    DFAo_j = DFA-CONVERTER(NFAo_j)
-12    if EQUIV-CHECKER(DFAo_i, DFAo_j) then
-13    W.UNION(o_i, o_j)
+5 if TYPEOF(o_i) == TYPEOF(o_j) and
+6 SINGLETYPE-CHECK(o_i, FPG) and
+7 SINGLETYPE-CHECK(o_j, FPG) then
+8 NFAo_i = NFA-BUILDER(o_i, FPG)
+9 NFAo_j = NFA-BUILDER(o_j, FPG)
+10 DFAo_i = DFA-CONVERTER(NFAo_i)
+11 DFAo_j = DFA-CONVERTER(NFAo_j)
+12 if EQUIV-CHECKER(DFAo_i, DFAo_j) then
+13 W.UNION(o_i, o_j)
 14 Let MOM be a new map
 15 foreach o ∈ H do
-16    MOM[o] = W.FIND(o)
+16 MOM[o] = W.FIND(o)
 17 return MOM
 
 Algorithm 1 gives the main algorithm. To facilitate merging type-consistent objects, we make use of the concept of disjoint sets [11]. In a set S of disjoint sets, each disjoint set is identified by a representative, which is some member of the disjoint set. We make use of two classic operations over disjoint sets, UNION and FIND. $S . \mathrm { U N I O N } ( x , y )$ unites the disjoint sets in S that contain x and y, say $S _ { x }$ and $S _ { y } ,$ , into a new disjoint set that is the union of the two, adds it to $S ,$ and destroys $S _ { x }$ and $S _ { y }$ in S. The representative of the resulting set is any member of $S _ { x } \cup S _ { y } . S . \mathsf { F I N D } ( x )$ returns the representative of the disjoint set in S that contains x.
@@ -380,12 +385,12 @@ Output: NFA = (Q, Σ, δ, q₀, Γ, γ)
 3 Let Σ and Γ be two new sets
 4 Let γ and δ be two new maps
 5 foreach oᵢ ∈ Q do
-6    Σ = Σ ∪ FIELDSOF(oᵢ)
-7    Γ = Γ ∪ {TYPEOF(oᵢ)}
-8    γ[oᵢ] = TYPEOF(oᵢ)
+6 Σ = Σ ∪ FIELDSOF(oᵢ)
+7 Γ = Γ ∪ {TYPEOF(oᵢ)}
+8 γ[oᵢ] = TYPEOF(oᵢ)
 9 foreach (oᵢ, f, oⱼ) ∈ E do
-10    if oᵢ ∈ Q then
-11    Add oⱼ to δ[oᵢ, f]
+10 if oᵢ ∈ Q then
+11 Add oⱼ to δ[oᵢ, f]
 12 return NFA = (Q, Σ, δ, q₀, Γ, γ)
 
 NFA-BUILDER constructs all the six components for ${ \mathcal { A } } _ { o } .$ Its initial state $q _ { 0 }$ is simply o (line 1). Q is the set of objects reachable from o in FPG (line 2). The objects in $Q$ are iterated over to build Σ (set of input symbols), Γ (set of output symbols), and γ (output map) at lines $5 \mathrm { ~ - ~ } 8 .$ . The function FIELDSOF : $: \mathbb { H } \to { \mathcal { P } } ( \mathbb { F } )$ returns the fields of a given object. Finally, the relevant edges in FPG are traversed to build the state transition map δ (lines 9 – 11).
@@ -394,7 +399,7 @@ NFA-BUILDER constructs all the six components for ${ \mathcal { A } } _ { o } .$
 
 Algorithm 3 (DFA-CONVERTER) converts an NFA to its equivalent DFA by using the subset construction [2].
 
-There are three minor differences. First, we do not need to handle (non-existent) ǫ-transitions. Second, we can find the next states of a DFA state q more efficiently. In the general case, all input symbols must be examined. In our case (lines $7 - 9 )$ , we only need to iterate over the fields (input symbols) of an arbitrarily picked object (an NFA state) in q to find its next states. Due to SINGLETYPE-CHECK in lines $6 - 7$ of Algorithm 1, the objects grouped in a DFA state q must have the same type. Finally, we need to compute Γ  (set of output symbols) and $\gamma ^ { \prime }$ (output map) at lines 14 – 16,
+There are three minor differences. First, we do not need to handle (non-existent) ǫ-transitions. Second, we can find the next states of a DFA state q more efficiently. In the general case, all input symbols must be examined. In our case (lines $7 - 9 )$ , we only need to iterate over the fields (input symbols) of an arbitrarily picked object (an NFA state) in q to find its next states. Due to SINGLETYPE-CHECK in lines $6 - 7$ of Algorithm 1, the objects grouped in a DFA state q must have the same type. Finally, we need to compute Γ (set of output symbols) and $\gamma ^ { \prime }$ (output map) at lines 14 – 16,
 
 Algorithm 3: DFA-CONVERTER  
 Input : NFA = (Q, Σ, δ, q₀, Γ, γ)
@@ -406,18 +411,18 @@ Output: DFA = (Q', Σ', δ', q₀', Γ', γ')
 4 Let δ' and γ' be two new maps
 5 Add q₀' as an unmarked state to Q'
 6 while there is an unmarked state q ∈ Q' do
-7    Mark q
-8    Pick any oᵢ from q
-9    foreach f ∈ FIELDSOF(oᵢ) do
-10    q' = {δ[oⱼ, f] | oⱼ ∈ q}
-11    if q'∉Q'then
-12    Add q' as an unmarked state to Q'
-13    δ'[q, f] = q'
+7 Mark q
+8 Pick any oᵢ from q
+9 foreach f ∈ FIELDSOF(oᵢ) do
+10 q' = {δ[oⱼ, f] | oⱼ ∈ q}
+11 if q'∉Q'then
+12 Add q' as an unmarked state to Q'
+13 δ'[q, f] = q'
 
-14    foreach q ∈ Q' do
-15    γ'[q] = {TYPEOF(oᵢ) | oᵢ ∈ q}
-16    Γ' = Γ' ∪ γ'[q]
-17    return DFA = (Q', Σ', δ', q₀', Γ', γ')
+14 foreach q ∈ Q' do
+15 γ'[q] = {TYPEOF(oᵢ) | oᵢ ∈ q}
+16 Γ' = Γ' ∪ γ'[q]
+17 return DFA = (Q', Σ', δ', q₀', Γ', γ')
 
 ## 4.4 The Automata Equivalence Checker
 
@@ -508,20 +513,21 @@ Let us examine some equivalence classes, given in Table 1, with their ranks (mea
 <details>
 <summary>bar chart</summary>
 
-| Category | Allocation-Site Abstraction | MAHJONG |
-| :--- | :--- | :--- |
-| antr | 7729 | 2228 |
-| fop | 7159 | 2474 |
-| luindex | 6190 | 2108 |
-| pmd | 7363 | 2727 |
-| bloat | 8106 | 3107 |
-| chart | 14337 | 5285 |
-| lusearch | 6523 | 2229 |
-| xalan | 7807 | 2942 |
-| checkstyle | 10888 | 4028 |
-| jpc | 11181 | 4142 |
-| findbugs | 14063 | 5233 |
-| eclipse | 19529 | 9414 |
+| Category   | Allocation-Site Abstraction | MAHJONG |
+| :--------- | :-------------------------- | :------ |
+| antr       | 7729                        | 2228    |
+| fop        | 7159                        | 2474    |
+| luindex    | 6190                        | 2108    |
+| pmd        | 7363                        | 2727    |
+| bloat      | 8106                        | 3107    |
+| chart      | 14337                       | 5285    |
+| lusearch   | 6523                        | 2229    |
+| xalan      | 7807                        | 2942    |
+| checkstyle | 10888                       | 4028    |
+| jpc        | 11181                       | 4142    |
+| findbugs   | 14063                       | 5233    |
+| eclipse    | 19529                       | 9414    |
+
 </details>
 
 Figure 8. Number of abstract objects created by the allocation-site abstraction and MAHJONG.
@@ -532,14 +538,15 @@ Figure 8. Number of abstract objects created by the allocation-site abstraction 
 <summary>scatterplot</summary>
 
 | Equivalence Class (Sizes) | No. of Equivalence Classes |
-| -------------------------- | -------------------------- |
-| 1                          | 4096                       |
-| 2                          | 64                         |
-| 3                          | 59                         |
-| 4                          | 16                         |
-| 16                         | 4                          |
-| 64                         | 1                          |
-| 1303                       | 1                          |
+| ------------------------- | -------------------------- |
+| 1                         | 4096                       |
+| 2                         | 64                         |
+| 3                         | 59                         |
+| 4                         | 16                         |
+| 16                        | 4                          |
+| 64                        | 1                          |
+| 1303                      | 1                          |
+
 </details>
 
 Figure 9. Object merging in checkstyle.

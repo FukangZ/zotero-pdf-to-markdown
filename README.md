@@ -20,15 +20,15 @@ or materialized as local `assets/` files.
 
 ## At a Glance
 
-| Item                  | Details                                                                  |
-| --------------------- | ------------------------------------------------------------------------ |
-| Target Zotero version | Zotero 9                                                                 |
-| Input                 | Selected Zotero regular items with local PDF attachments                 |
-| Command               | Item context menu ->**Generate Markdown Attachment from PDF**      |
-| Output                | One Markdown stored attachment under the original item                   |
-| Parser providers      | Zhiyi PDF, MinerU, GLM-OCR                                               |
+| Item                  | Details                                                                |
+| --------------------- | ---------------------------------------------------------------------- |
+| Target Zotero version | Zotero 9                                                               |
+| Input                 | Selected Zotero regular items with local PDF attachments               |
+| Command               | Item context menu ->**Generate Markdown Attachment from PDF**          |
+| Output                | One Markdown stored attachment under the original item                 |
+| Parser providers      | Zhiyi PDF, MinerU, GLM-OCR                                             |
 | Image modes           | Upload local image files through PicGo Server, or keep local `assets/` |
-| Duplicate handling    | Skip items that already have a generated Markdown attachment             |
+| Duplicate handling    | Skip items that already have a generated Markdown attachment           |
 
 ## Why This Plugin
 
@@ -122,20 +122,20 @@ The default `pdfParserProvider` is `zhiyi`.
 Prices and quotas can change. Check the official pages before purchasing or
 running a large batch.
 
-| Provider              | Introduction and best fit                                                                                                             | Quality and cost notes                                                                                                                                   | Official docs                                                | Example                                                                |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| Zhiyi PDF (`zhiyi`) | A PDF parsing and translation platform that converts complex PDFs into Markdown. Best when quality matters most.                      | Paid. Zhiyi's public pricing lists PDF parsing at 2 credits/page and the monthly plan at ¥19.9/month with 4000 credits, roughly 2000 pages/month.       | [Zhiyi PDF](https://www.zhiyipdf.com/api-docs?doc=pdf-parse)    | [Comparison example](docs/examples/parser-comparison/README.md#zhiyi-pdf) |
-| MinerU (`mineru`)   | An LLM/Agent document parsing engine that outputs Markdown, JSON, and other machine-readable formats. Good for general paper parsing. | Free API in current use. Parsing quality is usually next after Zhiyi, but tasks may queue during peak hours.                                             | [MinerU API](https://mineru.net/apiManage/docs)                 | [Comparison example](docs/examples/parser-comparison/README.md#mineru)    |
+| Provider            | Introduction and best fit                                                                                                             | Quality and cost notes                                                                                                                                 | Official docs                                                   | Example                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Zhiyi PDF (`zhiyi`) | A PDF parsing and translation platform that converts complex PDFs into Markdown. Best when quality matters most.                      | Paid. Zhiyi's public pricing lists PDF parsing at 2 credits/page and the monthly plan at ¥19.9/month with 4000 credits, roughly 2000 pages/month.      | [Zhiyi PDF](https://www.zhiyipdf.com/api-docs?doc=pdf-parse)    | [Comparison example](docs/examples/parser-comparison/README.md#zhiyi-pdf) |
+| MinerU (`mineru`)   | An LLM/Agent document parsing engine that outputs Markdown, JSON, and other machine-readable formats. Good for general paper parsing. | Free API in current use. Parsing quality is usually next after Zhiyi, but tasks may queue during peak hours.                                           | [MinerU API](https://mineru.net/apiManage/docs)                 | [Comparison example](docs/examples/parser-comparison/README.md#mineru)    |
 | GLM-OCR (`glmocr`)  | A lightweight professional OCR model for document parsing. Good when cost is the main constraint.                                     | Usable parsing quality and low cost. GLM-OCR pricing is token-based; official docs describe about ¥1 for 200 simple 10-page PDFs, roughly ¥0.001/page. | [GLM-OCR](https://docs.bigmodel.cn/cn/guide/models/vlm/glm-ocr) | [Comparison example](docs/examples/parser-comparison/README.md#glm-ocr)   |
 
 ### Image Handling
 
-| Preference                   | Default                             | Description                                                    |
-| ---------------------------- | ----------------------------------- | -------------------------------------------------------------- |
+| Preference                 | Default                           | Description                                                    |
+| -------------------------- | --------------------------------- | -------------------------------------------------------------- |
 | `enablePicgoUpload`        | `true`                            | Upload materialized image files through PicGo Server.          |
 | `picgoUploadUrl`           | `http://127.0.0.1:36677/upload`   | PicGo Server upload endpoint.                                  |
-| `picgoSecret`              | Empty                               | Optional PicGo Server secret.                                  |
-| `skipUrlPrefixes`          | Empty                               | One URL prefix per line. Matching URLs are not uploaded again. |
+| `picgoSecret`              | Empty                             | Optional PicGo Server secret.                                  |
+| `skipUrlPrefixes`          | Empty                             | One URL prefix per line. Matching URLs are not uploaded again. |
 | `markdownFilenameTemplate` | `{firstAuthor}-{year}-{title}.md` | Generated Markdown filename template.                          |
 
 ### Provider Preferences
@@ -143,11 +143,11 @@ running a large batch.
 Only the selected provider's credential is required. Advanced values can usually
 keep their defaults.
 
-| Provider  | Required preference | Useful advanced preferences                                                                                                                          |
-| --------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Zhiyi PDF | `zhiyiApiKey`     | `zhiyiApiUrl`, `zhiyiTableMode`, `zhiyiFormulaFormat`, `zhiyiEnableCrossPageMerge`                                                           |
-| MinerU    | `mineruApiToken`  | `mineruApiUrl`, `mineruModelVersion`, `mineruLanguage`, `mineruEnableTable`, `mineruIsOcr`, `mineruEnableFormula`, `mineruPageRanges`  |
-| GLM-OCR   | `glmOcrApiKey`    | `glmOcrApiUrl`, `glmOcrReturnCropImages`, `glmOcrNeedLayoutVisualization`, `glmOcrStartPageId`, `glmOcrEndPageId`, `glmOcrMaxFileSizeMb` |
+| Provider  | Required preference | Useful advanced preferences                                                                                                              |
+| --------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Zhiyi PDF | `zhiyiApiKey`       | `zhiyiApiUrl`, `zhiyiTableMode`, `zhiyiFormulaFormat`, `zhiyiEnableCrossPageMerge`                                                       |
+| MinerU    | `mineruApiToken`    | `mineruApiUrl`, `mineruModelVersion`, `mineruLanguage`, `mineruEnableTable`, `mineruIsOcr`, `mineruEnableFormula`, `mineruPageRanges`    |
+| GLM-OCR   | `glmOcrApiKey`      | `glmOcrApiUrl`, `glmOcrReturnCropImages`, `glmOcrNeedLayoutVisualization`, `glmOcrStartPageId`, `glmOcrEndPageId`, `glmOcrMaxFileSizeMb` |
 
 Filename templates support `{firstAuthor}`, `{year}`, `{title}`, and
 `{itemKey}`. Invalid Windows filename characters are replaced with `-`; `.md`

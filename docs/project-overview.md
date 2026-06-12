@@ -333,34 +333,34 @@ MVP 支持两类图片引用：
 
 默认偏好定义在 `addon/prefs.js`，运行时由 `src/modules/prefs.ts` 读取。
 
-| 配置项                            | 默认值                              | 说明                                                   |
-| --------------------------------- | ----------------------------------- | ------------------------------------------------------ |
+| 配置项                          | 默认值                            | 说明                                             |
+| ------------------------------- | --------------------------------- | ------------------------------------------------ |
 | `pdfParserProvider`             | `zhiyi`                           | PDF 解析服务，支持 `zhiyi` / `mineru` / `glmocr` |
-| `zhiyiApiUrl`                   | `https://www.zhiyipdf.com`        | 知意 API base URL                                      |
-| `zhiyiApiKey`                   | 空                                  | 知意 API Key                                           |
-| `zhiyiTableMode`                | `markdown`                        | 知意表格输出模式                                       |
-| `zhiyiFormulaFormat`            | `dollar`                          | 知意公式输出格式                                       |
-| `zhiyiEnableCrossPageMerge`     | `true`                            | 知意是否启用跨页合并                                   |
-| `mineruApiUrl`                  | `https://mineru.net`              | MinerU API base URL                                    |
-| `mineruApiToken`                | 空                                  | MinerU API Token                                       |
-| `mineruModelVersion`            | `vlm`                             | MinerU `model_version`                               |
-| `mineruLanguage`                | `en`                              | MinerU OCR 语言参数                                    |
-| `mineruEnableTable`             | `true`                            | MinerU 是否启用表格识别                                |
-| `mineruIsOcr`                   | `false`                           | MinerU 是否启用 OCR                                    |
-| `mineruEnableFormula`           | `true`                            | MinerU 是否启用公式识别                                |
-| `mineruPageRanges`              | 空                                  | MinerU `page_ranges`，例如 `2,4-6`                 |
-| `glmOcrApiUrl`                  | `https://open.bigmodel.cn`        | GLM-OCR API base URL                                   |
-| `glmOcrApiKey`                  | 空                                  | GLM-OCR API Key                                        |
-| `glmOcrReturnCropImages`        | `true`                            | 是否返回裁剪图片                                       |
-| `glmOcrNeedLayoutVisualization` | `false`                           | 是否返回版面可视化                                     |
-| `glmOcrStartPageId`             | `0`                               | 起始页；大于 0 时发送                                  |
-| `glmOcrEndPageId`               | `0`                               | 结束页；大于 0 时发送                                  |
-| `glmOcrMaxFileSizeMb`           | `50`                              | GLM-OCR 上传前文件大小上限，单位 MB                    |
-| `enablePicgoUpload`             | `true`                            | 是否通过 PicGo 上传并替换图片 URL                      |
-| `picgoUploadUrl`                | `http://127.0.0.1:36677/upload`   | PicGo Server 上传接口                                  |
-| `picgoSecret`                   | 空                                  | PicGo Server secret，可选                              |
-| `skipUrlPrefixes`               | 空                                  | 每行一个跳过上传的 URL 前缀                            |
-| `markdownFilenameTemplate`      | `{firstAuthor}-{year}-{title}.md` | Markdown 文件名模板                                    |
+| `zhiyiApiUrl`                   | `https://www.zhiyipdf.com`        | 知意 API base URL                                |
+| `zhiyiApiKey`                   | 空                                | 知意 API Key                                     |
+| `zhiyiTableMode`                | `markdown`                        | 知意表格输出模式                                 |
+| `zhiyiFormulaFormat`            | `dollar`                          | 知意公式输出格式                                 |
+| `zhiyiEnableCrossPageMerge`     | `true`                            | 知意是否启用跨页合并                             |
+| `mineruApiUrl`                  | `https://mineru.net`              | MinerU API base URL                              |
+| `mineruApiToken`                | 空                                | MinerU API Token                                 |
+| `mineruModelVersion`            | `vlm`                             | MinerU `model_version`                           |
+| `mineruLanguage`                | `en`                              | MinerU OCR 语言参数                              |
+| `mineruEnableTable`             | `true`                            | MinerU 是否启用表格识别                          |
+| `mineruIsOcr`                   | `false`                           | MinerU 是否启用 OCR                              |
+| `mineruEnableFormula`           | `true`                            | MinerU 是否启用公式识别                          |
+| `mineruPageRanges`              | 空                                | MinerU `page_ranges`，例如 `2,4-6`               |
+| `glmOcrApiUrl`                  | `https://open.bigmodel.cn`        | GLM-OCR API base URL                             |
+| `glmOcrApiKey`                  | 空                                | GLM-OCR API Key                                  |
+| `glmOcrReturnCropImages`        | `true`                            | 是否返回裁剪图片                                 |
+| `glmOcrNeedLayoutVisualization` | `false`                           | 是否返回版面可视化                               |
+| `glmOcrStartPageId`             | `0`                               | 起始页；大于 0 时发送                            |
+| `glmOcrEndPageId`               | `0`                               | 结束页；大于 0 时发送                            |
+| `glmOcrMaxFileSizeMb`           | `50`                              | GLM-OCR 上传前文件大小上限，单位 MB              |
+| `enablePicgoUpload`             | `true`                            | 是否通过 PicGo 上传并替换图片 URL                |
+| `picgoUploadUrl`                | `http://127.0.0.1:36677/upload`   | PicGo Server 上传接口                            |
+| `picgoSecret`                   | 空                                | PicGo Server secret，可选                        |
+| `skipUrlPrefixes`               | 空                                | 每行一个跳过上传的 URL 前缀                      |
+| `markdownFilenameTemplate`      | `{firstAuthor}-{year}-{title}.md` | Markdown 文件名模板                              |
 
 偏好页由 `addon/content/preferences.xhtml` 和 locale 文件渲染，当前提供中文和英文标签。`preferenceScript.ts` 负责注册偏好页，并为配置控件绑定变更日志。
 

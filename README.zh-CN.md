@@ -17,15 +17,15 @@ stored attachment。插件调用知意 PDF、MinerU、GLM-OCR 等 PDF 解析服�
 
 ## 快速概览
 
-| 项目             | 说明                                                       |
-| ---------------- | ---------------------------------------------------------- |
-| 目标 Zotero 版本 | Zotero 9                                                   |
-| 输入             | 选中的 Zotero regular item，且含有本地 PDF 附件            |
-| 命令入口         | 条目右键菜单 ->**从 PDF 生成 Markdown 附件**         |
-| 输出             | 原条目下的一个 Markdown stored attachment                  |
-| 解析服务         | 知意 PDF、MinerU、GLM-OCR                                  |
+| 项目             | 说明                                                     |
+| ---------------- | -------------------------------------------------------- |
+| 目标 Zotero 版本 | Zotero 9                                                 |
+| 输入             | 选中的 Zotero regular item，且含有本地 PDF 附件          |
+| 命令入口         | 条目右键菜单 ->**从 PDF 生成 Markdown 附件**             |
+| 输出             | 原条目下的一个 Markdown stored attachment                |
+| 解析服务         | 知意 PDF、MinerU、GLM-OCR                                |
 | 图片模式         | 通过 PicGo Server 上传本地图片文件，或保留本地 `assets/` |
-| 重复处理         | 已存在插件生成 Markdown 附件时跳过                         |
+| 重复处理         | 已存在插件生成 Markdown 附件时跳过                       |
 
 ## 为什么需要这个插件
 
@@ -113,30 +113,30 @@ Markdown 副本，同时保持原 PDF 不变。
 
 价格和额度可能变化。购买会员或批量解析前，请以官网信息为准。
 
-| 解析器               | 简介与适用场景                                                                            | 效果与价格                                                                                                        | 官方文档                                                     | 示例                                                                  |
-| -------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------- |
-| 知意 PDF (`zhiyi`) | PDF 解析与翻译平台，可将复杂 PDF 转为 Markdown；适合优先追求解析效果。                    | 付费。知意公开价格中 PDF 解析为 2 积分/页，高级版 ¥19.9/月含 4000 积分，约可解析 2000 页/月。                    | [知意 PDF](https://www.zhiyipdf.com/api-docs?doc=pdf-parse)     | [解析结果示例](docs/examples/parser-comparison/README.zh-CN.md#知意-pdf) |
+| 解析器             | 简介与适用场景                                                                            | 效果与价格                                                                                                        | 官方文档                                                        | 示例                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 知意 PDF (`zhiyi`) | PDF 解析与翻译平台，可将复杂 PDF 转为 Markdown；适合优先追求解析效果。                    | 付费。知意公开价格中 PDF 解析为 2 积分/页，高级版 ¥19.9/月含 4000 积分，约可解析 2000 页/月。                     | [知意 PDF](https://www.zhiyipdf.com/api-docs?doc=pdf-parse)     | [解析结果示例](docs/examples/parser-comparison/README.zh-CN.md#知意-pdf) |
 | MinerU (`mineru`)  | 面向 LLM / Agent 的文档解析引擎，可输出 Markdown、JSON 等机器可读格式；适合通用论文解析。 | 当前 API 可免费使用。解析效果通常次于知意，但高峰期可能排队等待。                                                 | [MinerU API](https://mineru.net/apiManage/docs)                 | [解析结果示例](docs/examples/parser-comparison/README.zh-CN.md#mineru)   |
 | GLM-OCR (`glmocr`) | 轻量级专业 OCR 模型，可用于文档解析；适合对成本敏感的场景。                               | 效果尚可，价格便宜。GLM-OCR 按 token 计费，官方文档给出的量级约为 1 元处理 200 份 10 页简单 PDF，约 0.001 元/页。 | [GLM-OCR](https://docs.bigmodel.cn/cn/guide/models/vlm/glm-ocr) | [解析结果示例](docs/examples/parser-comparison/README.zh-CN.md#glm-ocr)  |
 
 ### 图片处理
 
-| 配置项                       | 默认值                              | 说明                                     |
-| ---------------------------- | ----------------------------------- | ---------------------------------------- |
+| 配置项                     | 默认值                            | 说明                                     |
+| -------------------------- | --------------------------------- | ---------------------------------------- |
 | `enablePicgoUpload`        | `true`                            | 是否通过 PicGo Server 上传本地图片文件。 |
 | `picgoUploadUrl`           | `http://127.0.0.1:36677/upload`   | PicGo Server 上传接口。                  |
-| `picgoSecret`              | 空                                  | PicGo Server secret，可选。              |
-| `skipUrlPrefixes`          | 空                                  | 每行一个 URL 前缀，匹配后不重复上传。    |
+| `picgoSecret`              | 空                                | PicGo Server secret，可选。              |
+| `skipUrlPrefixes`          | 空                                | 每行一个 URL 前缀，匹配后不重复上传。    |
 | `markdownFilenameTemplate` | `{firstAuthor}-{year}-{title}.md` | 生成 Markdown 的文件名模板。             |
 
 ### 解析器配置项
 
 只有当前选中的解析器需要填写凭据。高级参数通常可以保留默认值。
 
-| 解析器   | 必填配置项         | 常用高级配置项                                                                                                                                       |
-| -------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 知意 PDF | `zhiyiApiKey`    | `zhiyiApiUrl`、`zhiyiTableMode`、`zhiyiFormulaFormat`、`zhiyiEnableCrossPageMerge`                                                           |
-| MinerU   | `mineruApiToken` | `mineruApiUrl`、`mineruModelVersion`、`mineruLanguage`、`mineruEnableTable`、`mineruIsOcr`、`mineruEnableFormula`、`mineruPageRanges`  |
+| 解析器   | 必填配置项       | 常用高级配置项                                                                                                                           |
+| -------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 知意 PDF | `zhiyiApiKey`    | `zhiyiApiUrl`、`zhiyiTableMode`、`zhiyiFormulaFormat`、`zhiyiEnableCrossPageMerge`                                                       |
+| MinerU   | `mineruApiToken` | `mineruApiUrl`、`mineruModelVersion`、`mineruLanguage`、`mineruEnableTable`、`mineruIsOcr`、`mineruEnableFormula`、`mineruPageRanges`    |
 | GLM-OCR  | `glmOcrApiKey`   | `glmOcrApiUrl`、`glmOcrReturnCropImages`、`glmOcrNeedLayoutVisualization`、`glmOcrStartPageId`、`glmOcrEndPageId`、`glmOcrMaxFileSizeMb` |
 
 文件名模板支持 `{firstAuthor}`、`{year}`、`{title}` 和 `{itemKey}`。Windows
